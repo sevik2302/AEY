@@ -12,25 +12,23 @@ camera.position.z = 10;
 
 /* RENDER */
 renderer = new THREE.WebGLRenderer({
-  antialias:true,
-  alpha:true
+  antialias:true
 });
 renderer.setSize(innerWidth, innerHeight);
 document.body.appendChild(renderer.domElement);
 
-/* SUN LIGHT */
+/* LIGHT */
 const sun = new THREE.PointLight(0xffffff, 3);
-sun.position.set(10,10,10);
+sun.position.set(8,8,8);
 scene.add(sun);
 
-/* AMBIENT */
 scene.add(new THREE.AmbientLight(0x222222));
 
 /* STARS */
 const geo = new THREE.BufferGeometry();
 const pos = [];
 
-for(let i=0;i<3000;i++){
+for(let i=0;i<4000;i++){
   pos.push((Math.random()-0.5)*200);
   pos.push((Math.random()-0.5)*200);
   pos.push((Math.random()-0.5)*200);
@@ -42,7 +40,7 @@ const stars = new THREE.Points(
   geo,
   new THREE.PointsMaterial({
     color:0xffffff,
-    size:0.15
+    size:0.12
   })
 );
 
@@ -57,6 +55,9 @@ animate();
 
 function animate(){
   requestAnimationFrame(animate);
-  if(window.planet) planet.rotation.y += 0.002;
+
+  if(window.planet)
+    planet.rotation.y += 0.0015;
+
   renderer.render(scene,camera);
 }
