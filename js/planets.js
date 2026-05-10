@@ -1,64 +1,77 @@
-app.planet = null;
-app.cityGroup = null;
+(function () {
 
-app.createPlanet = function () {
+  function waitForApp() {
 
-  console.log("CREATE PLANET OK");
+    if (!window.app || !app.scene) {
+      console.log("WAITING FOR SCENE...");
+      return setTimeout(waitForApp, 100);
+    }
 
-  /* 🌍 ПРОСТАЯ ПЛАНЕТА (БЕЗ ТЕКСТУР) */
-  app.planet = new THREE.Mesh(
-    new THREE.SphereGeometry(2.2, 64, 64),
-    new THREE.MeshStandardMaterial({
-      color: 0x2266ff
-    })
-  );
-
-  app.scene.add(app.planet);
-
-  console.log("PLANET ADDED TO SCENE");
-
-  /* 🏙 ГОРОДА */
-  app.cityGroup = new THREE.Group();
-  app.scene.add(app.cityGroup);
-
-  app.buildCity(1);
-};
-
-/* =========================
-   🏙 ГОРОДА (100% ВИДИМОСТЬ)
-========================= */
-app.buildCity = function (level) {
-
-  app.cityGroup.clear();
-
-  console.log("BUILD CITY:", level);
-
-  const count = 100;
-
-  for (let i = 0; i < count; i++) {
-
-    const b = new THREE.Mesh(
-      new THREE.BoxGeometry(0.3, 0.3 + level, 0.3),
-      new THREE.MeshBasicMaterial({ color: 0xffffff })
-    );
-
-    b.position.set(
-      (Math.random() - 0.5) * 4,
-      (Math.random() - 0.5) * 4,
-      (Math.random() - 0.5) * 4
-    );
-
-    app.cityGroup.add(b);
+    initPlanet();
   }
 
-  console.log("CITY COUNT:", count);
-};
+  function initPlanet() {
 
-app.updateCity = function (level) {
-  app.buildCity(level);
-};
+    console.log("PLANET INIT START");
 
-/* 🚀 ГАРАНТИРОВАННЫЙ ЗАПУСК */
-setTimeout(() => {
-  app.createPlanet();
-}, 100);
+    /* 🌍 ПЛАНЕТА (100% ВИДИМАЯ) */
+    app.planet = new THREE.Mesh(
+      new THREE.SphereGeometry(2.2, 64, 64),
+      new THREE.MeshBasicMaterial({
+        color: 0x1e90ff
+      })
+    );
+
+    app.scene.add(app.planet);
+
+    console.log("PLANET ADDED");
+
+    /* 🏙 ГОРОДА */
+    app.cityGroup = new THREE.Group();
+    app.scene.add(app.cityGroup);
+
+    buildCity(1);
+
+    console.log("PLANET SYSTEM READY");
+  }
+
+  /* =========================
+     🏙 ГОРОДА (ЖЁСТКИЙ ТЕСТ)
+  ========================= */
+  function buildCity(level) {
+
+    if (!app.cityGroup) return;
+
+    app.cityGroup.clear();
+
+    const count = 120;
+
+    for (let i = 0; i < count; i++) {
+
+      const cube = new THREE.Mesh(
+        new THREE.BoxGeometry(0.25, 0.25 + level, 0.25),
+        new THREE.MeshBasicMaterial({ color: 0xffffff })
+      );
+
+      cube.position.set(
+        (Math.random() - 0.5) * 4,
+        (Math.random() - 0.5) * 4,
+        (Math.random() - 0.5) * 4
+      );
+
+      app.cityGroup.add(cube);
+    }
+
+    console.log("CITY BUILT:", count);
+  }
+
+  /* =========================
+     EXPOSE API
+  ========================= */
+  window.app.buildCity = buildCity;
+  window.app.updateCity = buildCity;
+
+  /* 🚀 START */
+  waitForApp();
+
+})();
