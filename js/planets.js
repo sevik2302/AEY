@@ -6,36 +6,28 @@ window.createPlanet = function () {
   const scene = window.scene;
 
   if (!scene) {
-    console.error("❌ NO SCENE FOUND");
+    console.error("NO SCENE");
     return;
   }
 
-  console.log("✅ SCENE OK");
-
-  const tex = new THREE.TextureLoader().load(
-    "https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg"
-  );
-
-  /* 🌍 ПЛАНЕТА (УПРОЩЕННАЯ) */
+  /* 🌍 ПЛАНЕТА */
   planet = new THREE.Mesh(
-    new THREE.SphereGeometry(2.5, 64, 64),
-    new THREE.MeshStandardMaterial({ map: tex })
+    new THREE.SphereGeometry(2, 64, 64),
+    new THREE.MeshStandardMaterial({
+      color: 0x2266ff
+    })
   );
 
   scene.add(planet);
 
-  /* 🔴 ТЕСТ-КУБ (ОЧЕНЬ ВАЖНО) */
-  const test = new THREE.Mesh(
-    new THREE.BoxGeometry(1,1,1),
-    new THREE.MeshBasicMaterial({ color: 0xff0000 })
-  );
+  /* 💡 СВЕТ */
+  const light = new THREE.PointLight(0xffffff, 5);
+  light.position.set(5, 5, 5);
+  scene.add(light);
 
-  test.position.set(4,0,0);
-  scene.add(test);
+  scene.add(new THREE.AmbientLight(0x666666));
 
-  console.log("🔴 TEST CUBE ADDED");
-
-  /* 🏙 ГОРОДА */
+  /* 🏙 ГОРОДА (СЕЙЧАС В ВОЗДУХЕ — ДЛЯ ПРОВЕРКИ) */
   cityGroup = new THREE.Group();
   scene.add(cityGroup);
 
@@ -46,40 +38,35 @@ window.buildCity = function (level) {
 
   const scene = window.scene;
 
-  if (!scene || !cityGroup) {
-    console.log("❌ NO SCENE OR CITYGROUP");
-    return;
-  }
-
   cityGroup.clear();
 
-  console.log("🏙 BUILD CITY LEVEL:", level);
+  console.log("BUILD CITY LEVEL:", level);
 
-  const count = 50; // МАЛО, НО ОЧЕНЬ ВИДИМО
+  const count = 100;
 
   for (let i = 0; i < count; i++) {
 
+    const h = 0.5 + Math.random() * 2;
+
     const b = new THREE.Mesh(
-      new THREE.BoxGeometry(0.3, 0.3 + level, 0.3),
-      new THREE.MeshBasicMaterial({
-        color: 0xffffff
+      new THREE.BoxGeometry(0.3, h, 0.3),
+      new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        emissive: 0x333333
       })
     );
 
-    /* 💥 РАЗМЕЩАЕМ ПРЯМО ПЕРЕД КАМЕРОЙ (ВАЖНО ДЛЯ ТЕСТА) */
+    /* 🔥 ВАЖНО: РАЗБРОС В ВОЗДУХЕ (НЕ НА СФЕРЕ!) */
     b.position.set(
-      (Math.random() - 0.5) * 3,
-      (Math.random() - 0.5) * 3,
-      (Math.random() - 0.5) * 3
+      (Math.random() - 0.5) * 6,
+      (Math.random() - 0.5) * 6,
+      (Math.random() - 0.5) * 6
     );
 
     cityGroup.add(b);
   }
-
-  console.log("🏙 CITY COUNT:", count);
 };
 
 window.updateCity = function (level) {
-  console.log("🔄 UPDATE CITY:", level);
   buildCity(level);
 };
