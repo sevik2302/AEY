@@ -30,6 +30,18 @@ async function init(){
   }
 
   player = p;
+
+  updateHUD();
+}
+
+/* HUD UPDATE */
+function updateHUD(){
+  if(!player) return;
+
+  document.getElementById("fragments").innerText = "Fragments: " + player.fragments;
+  document.getElementById("level").innerText = "Level: " + player.level;
+  document.getElementById("planet").innerText = "Planet: " + player.planet_level;
+  document.getElementById("pvp").innerText = "PvP: " + player.pvp;
 }
 
 /* TAP */
@@ -37,8 +49,7 @@ let lastTap = 0;
 
 async function tap(){
   if(!player) return;
-
-  if(Date.now() - lastTap < 800) return;
+  if(Date.now() - lastTap < 500) return;
   lastTap = Date.now();
 
   player.fragments += 1;
@@ -50,9 +61,11 @@ async function tap(){
       pvp: player.pvp
     })
     .eq("id", userId);
+
+  updateHUD();
 }
 
-/* BUILD CITY */
+/* BUILD */
 async function build(){
   if(!player) return;
 
@@ -68,6 +81,8 @@ async function build(){
       build: player.build
     })
     .eq("id", userId);
+
+  updateHUD();
 }
 
 /* UPGRADE PLANET */
@@ -86,4 +101,6 @@ async function upgradePlanet(){
       planet_level: player.planet_level
     })
     .eq("id", userId);
+
+  updateHUD();
 }
