@@ -23,7 +23,7 @@ async function init() {
     p = {
       id: userId,
       fragments: 0,
-      build: 0,
+      build: 1,
       planet_level: 1
     };
 
@@ -34,12 +34,12 @@ async function init() {
 
   updateHUD();
 
-  /* 🔥 ВАЖНО: стартовый город */
+  /* 🔥 СТАРТОВЫЙ ГОРОД (ВАЖНО) */
   setTimeout(() => {
     if (window.updateCity) {
-      updateCity(player.build || 1);
+      updateCity(player.build);
     }
-  }, 600);
+  }, 800);
 }
 
 /* =========================
@@ -60,8 +60,8 @@ function updateHUD() {
   document.getElementById("buildText").innerText =
     "Build: " + percent + "%";
 
-  document.getElementById("buildFill").style.width =
-    percent + "%";
+  const bar = document.getElementById("buildFill");
+  if (bar) bar.style.width = percent + "%";
 }
 
 /* =========================
@@ -86,13 +86,13 @@ async function tap() {
 }
 
 /* =========================
-   BUILD (🏙 VISUAL FIX)
+   BUILD (🔥 ГЛАВНАЯ СВЯЗЬ С ГОРОДОМ)
 ========================= */
 async function build() {
 
   if (!player) return;
 
-  const cost = 10 * (player.build + 1);
+  const cost = 10 * player.build;
 
   if (player.fragments < cost) return;
 
@@ -108,14 +108,14 @@ async function build() {
 
   updateHUD();
 
-  /* 🔥 ОБНОВЛЕНИЕ ГОРОДА */
+  /* 🔥 ВАЖНЕЙШАЯ СТРОКА */
   if (window.updateCity) {
     updateCity(player.build);
   }
 }
 
 /* =========================
-   UPGRADE PLANET
+   PLANET UPGRADE (пока без визуала)
 ========================= */
 async function upgradePlanet() {
 
