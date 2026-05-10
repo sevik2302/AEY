@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>AEY GALAXY v2</title>
+<title>AEY GALAXY V3</title>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -11,34 +11,86 @@
 <script src="js/game.js"></script>
 <script src="js/renderer.js"></script>
 <script src="js/planets.js"></script>
-<script src="js/economy.js"></script>
-<script src="js/pvp.js"></script>
 
 <style>
-body{margin:0;overflow:hidden;background:black;font-family:Arial}
-#ui{
+body{
+  margin:0;
+  overflow:hidden;
+  background:black;
+  font-family:Arial;
+}
+
+/* HUD */
+#hud{
   position:fixed;
   top:20px;
   left:20px;
-  z-index:10;
   color:white;
+  z-index:10;
+  font-size:14px;
+  line-height:1.5;
+  opacity:0.9;
 }
-button{
-  margin:5px;
-  padding:10px 14px;
-  border-radius:10px;
+
+/* BOTTOM PANEL */
+#panel{
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:100%;
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  padding:15px;
+  background:rgba(0,0,0,0.6);
+  backdrop-filter: blur(10px);
+  z-index:20;
+}
+
+/* BUTTONS */
+.btn{
+  padding:12px 18px;
+  border-radius:12px;
+  border:1px solid #555;
+  background:#111;
+  color:white;
   cursor:pointer;
+  transition:0.2s;
+}
+
+.btn:hover{
+  background:#222;
+  transform:scale(1.05);
+}
+
+/* TITLE */
+#title{
+  position:fixed;
+  top:20px;
+  right:20px;
+  color:#66ccff;
+  font-size:18px;
+  z-index:10;
 }
 </style>
+
 </head>
 
 <body>
 
-<div id="ui">
-  <button onclick="tap()">TAP</button>
-  <button onclick="build()">BUILD CITY</button>
-  <button onclick="upgradePlanet()">UPGRADE PLANET</button>
-  <div id="info"></div>
+<div id="hud">
+  <div id="fragments">Fragments: 0</div>
+  <div id="level">Level: 0</div>
+  <div id="planet">Planet: 1</div>
+  <div id="pvp">PvP: 0</div>
+</div>
+
+<div id="title">AEY GALAXY SYSTEM</div>
+
+<div id="panel">
+  <button class="btn" onclick="tap()">⚡ TAP</button>
+  <button class="btn" onclick="build()">🏙 BUILD</button>
+  <button class="btn" onclick="upgradePlanet()">🌍 UPGRADE</button>
 </div>
 
 <script>
