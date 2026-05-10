@@ -1,7 +1,5 @@
 let scene, camera, renderer;
 
-let cameraTargetX = 0;
-
 function startRenderer(){
 
 scene = new THREE.Scene();
@@ -10,18 +8,22 @@ camera = new THREE.PerspectiveCamera(
   60, innerWidth/innerHeight, 0.1, 1000
 );
 
-camera.position.z = 10;
+camera.position.z = 9;
 
-renderer = new THREE.WebGLRenderer({antialias:true});
+renderer = new THREE.WebGLRenderer({
+  antialias:true
+});
+
 renderer.setSize(innerWidth, innerHeight);
 document.body.appendChild(renderer.domElement);
 
-/* LIGHT */
-const light = new THREE.PointLight(0xffffff, 3);
-light.position.set(10,10,10);
-scene.add(light);
+/* 🌞 УСИЛЕННЫЙ СВЕТ (ВАЖНО!) */
+const sun = new THREE.PointLight(0xffffff, 5);
+sun.position.set(10,10,10);
+scene.add(sun);
 
-scene.add(new THREE.AmbientLight(0x222222));
+/* ambient brighter */
+scene.add(new THREE.AmbientLight(0x555555));
 
 /* STARS */
 const geo = new THREE.BufferGeometry();
@@ -37,13 +39,12 @@ geo.setAttribute("position", new THREE.Float32BufferAttribute(pos,3));
 
 const stars = new THREE.Points(
   geo,
-  new THREE.PointsMaterial({color:0xffffff,size:0.1})
+  new THREE.PointsMaterial({color:0xffffff,size:0.12})
 );
 
 scene.add(stars);
 
-/* GALAXY */
-createGalaxy();
+createPlanet();
 
 animate();
 
@@ -52,10 +53,8 @@ animate();
 function animate(){
   requestAnimationFrame(animate);
 
-  /* smooth camera move */
-  camera.position.x += (cameraTargetX - camera.position.x) * 0.05;
-
-  camera.lookAt(camera.position.x,0,0);
+  if(window.planet)
+    planet.rotation.y += 0.0015;
 
   renderer.render(scene,camera);
 }
