@@ -1,13 +1,23 @@
 setInterval(async ()=>{
 
-const { data } = await sb.from("players").select("*");
+  if(!window.sb) return;
 
-for(let p of data){
-  await sb.from("players")
-    .update({
-      pvp: p.fragments + p.build * 5
-    })
-    .eq("id", p.id);
-}
+  try{
 
-}, 10000);
+    await sb
+      .from("events")
+      .insert({
+
+        event_type:"tick",
+
+        value:game.fragments
+
+      });
+
+  }catch(e){
+
+    console.log(e);
+
+  }
+
+},30000);
