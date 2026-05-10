@@ -1,6 +1,9 @@
 let userId;
 let player;
 
+/* =========================
+   INIT PLAYER
+========================= */
 async function init(){
 
   userId = localStorage.getItem("aey_id");
@@ -31,10 +34,18 @@ async function init(){
   player = p;
 
   updateHUD();
+
+  /* 🔥 СИНХРОН С ГОРОДОМ ПРИ ЗАПУСКЕ */
+  if(window.updateCity){
+    updateCity(player.build);
+  }
 }
 
-/* HUD */
+/* =========================
+   HUD
+========================= */
 function updateHUD(){
+
   if(!player) return;
 
   document.getElementById("frag").innerText =
@@ -48,38 +59,44 @@ function updateHUD(){
   document.getElementById("buildText").innerText =
     "Build: " + percent + "%";
 
-  document.getElementById("buildFill").style.width =
-    percent + "%";
+  const bar = document.getElementById("buildFill");
+  if(bar) bar.style.width = percent + "%";
 }
 
-/* TAP */
+/* =========================
+   TAP SYSTEM
+========================= */
 let lastTap = 0;
 
 async function tap(){
+
   if(!player) return;
   if(Date.now() - lastTap < 400) return;
 
   lastTap = Date.now();
 
-  player.fragments++;
+  player.fragments += 1;
 
   await sb.from("players")
     .update({ fragments: player.fragments })
     .eq("id", userId);
 
   updateHUD();
-  syncVisuals();
 }
 
-/* BUILD */
+/* =========================
+   BUILD SYSTEM (🏙 + VISUAL CITY)
+========================= */
 async function build(){
+
   if(!player) return;
 
   const cost = 10 * (player.build + 1);
+
   if(player.fragments < cost) return;
 
   player.fragments -= cost;
-  player.build++;
+  player.build += 1;
 
   await sb.from("players")
     .update({
@@ -89,18 +106,26 @@ async function build(){
     .eq("id", userId);
 
   updateHUD();
-  syncVisuals();
+
+  /* 🔥 ВИЗУАЛЬНОЕ СТРОИТЕЛЬСТВО ГОРОДА */
+  if(window.updateCity){
+    updateCity(player.build);
+  }
 }
 
-/* UPGRADE */
+/* =========================
+   UPGRADE PLANET
+========================= */
 async function upgradePlanet(){
+
   if(!player) return;
 
   const cost = 50 * player.planet_level;
+
   if(player.fragments < cost) return;
 
   player.fragments -= cost;
-  player.planet_level++;
+  player.planet_level += 1;
 
   await sb.from("players")
     .update({
@@ -110,22 +135,6 @@ async function upgradePlanet(){
     .eq("id", userId);
 
   updateHUD();
-  syncVisuals();
-}
 
-/* VISUAL SYNC */
-function syncVisuals(){
-
-  if(!window.planet || !player) return;
-
-  // 🌍 планета ярче + больше
-  const s = 1 + player.planet_level * 0.08;
-  planet.scale.set(s,s,s);
-
-  // 🏙 здания растут
-  scene.children.forEach(o=>{
-    if(o.userData && o.userData.city){
-      o.scale.y = 1 + player.build * 0.2;
-    }
-  });
+  /* можно добавить визуал позже */
 }
