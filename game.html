@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>AEY GALAXY v4</title>
+<title>AEY GALAXY v4.1</title>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -20,16 +20,16 @@ body{
   font-family:Arial;
 }
 
-/* TOP HUD */
+/* HUD */
 #hud{
   position:fixed;
   top:15px;
   left:15px;
   color:white;
-  font-size:13px;
+  font-size:14px;
   z-index:10;
-  opacity:0.9;
-  line-height:1.5;
+  line-height:1.6;
+  text-shadow:0 0 10px black;
 }
 
 /* TITLE */
@@ -37,46 +37,65 @@ body{
   position:fixed;
   top:15px;
   right:15px;
-  color:#66ccff;
+  color:#7fd3ff;
   font-size:16px;
+  z-index:10;
 }
 
-/* GALAXY PANEL */
+/* PANEL */
 #panel{
   position:fixed;
   bottom:0;
   width:100%;
   display:flex;
   justify-content:center;
-  gap:10px;
+  gap:14px;
   padding:18px;
-  background:rgba(0,0,0,0.65);
+  background:rgba(0,0,0,0.7);
   backdrop-filter: blur(12px);
 }
 
-/* BUTTONS */
+/* BUTTONS (УВЕЛИЧИЛ) */
 .btn{
-  padding:12px 18px;
-  border-radius:12px;
-  border:1px solid #333;
-  background:#111;
+  padding:14px 22px;
+  border-radius:14px;
+  border:1px solid #444;
+  background:#121212;
   color:white;
+  font-size:15px;
   cursor:pointer;
   transition:0.2s;
+  min-width:120px;
 }
 
 .btn:hover{
   transform:translateY(-2px);
-  background:#1a1a1a;
+  background:#1e1e1e;
 }
 
 .btn:active{
   transform:scale(0.95);
 }
 
-/* LOCK TEXT */
-.lock{
-  color:#ff5555;
+/* BUILD PROGRESS BAR */
+#buildBar{
+  position:fixed;
+  bottom:90px;
+  left:50%;
+  transform:translateX(-50%);
+  width:260px;
+  height:10px;
+  background:#222;
+  border-radius:10px;
+  overflow:hidden;
+  border:1px solid #333;
+}
+
+#buildFill{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,#00c3ff,#7fd3ff);
+  transition:0.3s;
 }
 </style>
 
@@ -87,15 +106,19 @@ body{
 <div id="hud">
   <div id="frag">Fragments: 0</div>
   <div id="planet">Planet: 1</div>
-  <div id="level">Level: 0</div>
+  <div id="buildText">Build: 0%</div>
 </div>
 
-<div id="title">AEY GALAXY SYSTEM v4</div>
+<div id="title">AEY GALAXY SYSTEM</div>
+
+<div id="buildBar">
+  <div id="buildFill"></div>
+</div>
 
 <div id="panel">
   <button class="btn" onclick="tap()">⚡ TAP</button>
   <button class="btn" onclick="build()">🏙 BUILD</button>
-  <button class="btn" onclick="nextPlanet()">🌍 NEXT</button>
+  <button class="btn" onclick="upgradePlanet()">🌍 UPGRADE</button>
 </div>
 
 <script>
