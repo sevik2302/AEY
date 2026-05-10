@@ -5,9 +5,7 @@ window.updateUI =
       "planetText"
     ).innerText =
       "Planet: " +
-      game.planets[
-        game.currentPlanet
-      ];
+      game.planets[game.currentPlanet];
 
     document.getElementById(
       "cityText"
@@ -16,7 +14,7 @@ window.updateUI =
       game.cityLevel;
 
     document.getElementById(
-      "fragmentsText"
+      "fragmentText"
     ).innerText =
       "Fragments: " +
       game.fragments;
@@ -25,13 +23,20 @@ window.updateUI =
       "completionText"
     ).innerText =
       "Completion: " +
-      game.completion +
-      "%";
+      game.completion + "%";
+
+    document.getElementById(
+      "costText"
+    ).innerText =
+      "Cost: " +
+      game.buildCost;
 
     document.getElementById(
       "progressFill"
     ).style.width =
       game.completion + "%";
+
   };
 
+/* INIT */
 updateUI();
