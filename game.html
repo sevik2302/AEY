@@ -2,9 +2,9 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>TEST</title>
+<title>DEBUG PLANET</title>
 <style>
-body { margin:0; overflow:hidden; background:black; }
+body { margin:0; overflow:hidden; }
 </style>
 </head>
 <body>
@@ -12,7 +12,7 @@ body { margin:0; overflow:hidden; background:black; }
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 
 <script>
-console.log("START");
+console.log("START TEST");
 
 const scene = new THREE.Scene();
 
@@ -25,28 +25,47 @@ const camera = new THREE.PerspectiveCamera(
 
 camera.position.z = 5;
 
-const renderer = new THREE.WebGLRenderer();
+const renderer = new THREE.WebGLRenderer({antialias:true});
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-/* 🔴 КУБ (ОБЯЗАТЕЛЬНО ДОЛЖЕН БЫТЬ ВИДЕН) */
+/* 💡 LIGHT */
+scene.add(new THREE.AmbientLight(0x666666));
+
+const light = new THREE.PointLight(0xffffff, 5);
+light.position.set(5,5,5);
+scene.add(light);
+
+/* 🌍 PLANET */
+const planet = new THREE.Mesh(
+  new THREE.SphereGeometry(2, 64, 64),
+  new THREE.MeshBasicMaterial({ color: 0x2266ff })
+);
+
+scene.add(planet);
+
+/* 🔴 TEST CUBE */
 const cube = new THREE.Mesh(
   new THREE.BoxGeometry(),
   new THREE.MeshBasicMaterial({ color: 0xff0000 })
 );
 
+cube.position.x = 4;
 scene.add(cube);
 
+/* LOOP */
 function animate(){
   requestAnimationFrame(animate);
+
+  planet.rotation.y += 0.01;
   cube.rotation.x += 0.01;
-  cube.rotation.y += 0.01;
+
   renderer.render(scene,camera);
 }
 
 animate();
 
-console.log("RUNNING");
+console.log("PLANET TEST READY");
 </script>
 
 </body>
