@@ -1,13 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-
 <meta charset="utf-8">
-
 <title>AEY GALAXY</title>
 
 <style>
-
 body{
   margin:0;
   overflow:hidden;
@@ -15,123 +12,63 @@ body{
   font-family:Arial;
 }
 
-/* TOP UI */
-
 #topbar{
-
   position:fixed;
-
   top:20px;
   left:20px;
-
   z-index:20;
-
   color:white;
-
   background:rgba(10,10,20,0.7);
-
   padding:18px;
-
   border-radius:18px;
-
   backdrop-filter:blur(10px);
-
-  min-width:280px;
-
+  min-width:260px;
 }
-
-/* TITLE */
 
 #logo{
-
-  font-size:28px;
-
+  font-size:26px;
   font-weight:bold;
-
-  margin-bottom:14px;
-
+  margin-bottom:12px;
 }
-
-/* STATS */
 
 .stat{
-
-  margin-top:8px;
-
-  font-size:16px;
-
+  margin-top:6px;
+  font-size:15px;
 }
 
-/* PROGRESS */
-
 #progress{
-
   width:100%;
-
-  height:12px;
-
-  background:rgba(255,255,255,0.08);
-
-  border-radius:20px;
-
+  height:10px;
+  background:rgba(255,255,255,0.1);
+  border-radius:10px;
+  margin-top:14px;
   overflow:hidden;
-
-  margin-top:18px;
-
 }
 
 #progressFill{
-
-  width:10%;
-
   height:100%;
-
-  background:linear-gradient(
-    90deg,
-    #00c6ff,
-    #0072ff
-  );
-
+  width:0%;
+  background:linear-gradient(90deg,#00c6ff,#0072ff);
 }
 
-/* BUTTONS */
-
 #buttons{
-
   position:fixed;
-
   bottom:30px;
-
   left:50%;
-
   transform:translateX(-50%);
-
   display:flex;
-
-  gap:16px;
-
+  gap:12px;
   z-index:20;
-
 }
 
 button{
-
-  padding:16px 28px;
-
+  padding:14px 20px;
   border:none;
-
-  border-radius:18px;
-
-  background:rgba(18,18,30,0.92);
-
+  border-radius:14px;
+  background:#111;
   color:white;
-
-  font-size:16px;
-
   cursor:pointer;
-
 }
-
 </style>
 
 </head>
@@ -139,32 +76,15 @@ button{
 <body>
 
 <!-- UI -->
-
 <div id="topbar">
 
-  <div id="logo">
-    AEY GALAXY
-  </div>
+  <div id="logo">AEY GALAXY</div>
 
-  <div class="stat" id="planetText">
-    Planet: Terra Prime
-  </div>
-
-  <div class="stat" id="cityText">
-    City Level: 1
-  </div>
-
-  <div class="stat" id="fragmentsText">
-    Fragments: 0
-  </div>
-
-  <div class="stat" id="completionText">
-    Completion: 0%
-  </div>
-
-  <div class="stat" id="economyText">
-    Economy: Stable
-  </div>
+  <div class="stat" id="planetText">Planet</div>
+  <div class="stat" id="cityText">City Level: 1</div>
+  <div class="stat" id="fragmentText">Fragments: 0</div>
+  <div class="stat" id="completionText">Completion: 0%</div>
+  <div class="stat" id="costText">Next Cost: 100</div>
 
   <div id="progress">
     <div id="progressFill"></div>
@@ -173,40 +93,31 @@ button{
 </div>
 
 <!-- BUTTONS -->
-
 <div id="buttons">
 
+  <button onclick="tapFragments()">
+    TAP +1
+  </button>
+
   <button onclick="buildCityUpgrade()">
-    BUILD CITY
+    BUILD
   </button>
 
   <button onclick="nextPlanet()">
-    NEXT PLANET
+    NEXT
   </button>
 
 </div>
 
 <!-- LIBS -->
-
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<!-- GAME FILES -->
-
-<script src="js/supabase.js"></script>
-
+<!-- SCRIPTS -->
 <script src="js/renderer.js"></script>
-
 <script src="js/planets.js"></script>
-
 <script src="js/game.js"></script>
-
-<script src="js/ui.js"></script>
-
 <script src="js/economy.js"></script>
-
-<script src="js/pvp.js"></script>
+<script src="js/ui.js"></script>
 
 </body>
 </html>
