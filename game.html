@@ -2,21 +2,80 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>AEY CLEAN</title>
+<title>AEY GALAXY</title>
+
 <style>
-body { margin:0; overflow:hidden; background:black; }
+body{
+  margin:0;
+  overflow:hidden;
+  background:black;
+  font-family:Arial;
+}
+
+/* UI */
+#ui{
+  position:fixed;
+  bottom:30px;
+  left:50%;
+  transform:translateX(-50%);
+  display:flex;
+  gap:15px;
+  z-index:10;
+}
+
+button{
+  padding:14px 22px;
+  border:none;
+  border-radius:14px;
+  background:#111;
+  color:white;
+  font-size:16px;
+  cursor:pointer;
+  transition:0.2s;
+}
+
+button:hover{
+  background:#222;
+  transform:scale(1.05);
+}
+
+/* INFO */
+#info{
+  position:fixed;
+  top:20px;
+  left:20px;
+  color:white;
+  z-index:10;
+  font-size:18px;
+  line-height:1.6;
+}
 </style>
 </head>
+
 <body>
+
+<div id="info">
+  <div>AEY GALAXY</div>
+  <div id="levelText">Build Level: 1</div>
+</div>
+
+<div id="ui">
+  <button onclick="upgradeCity()">BUILD CITY</button>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 
 <script>
 
 /* =========================
-   CORE ENGINE
+   SCENE
 ========================= */
+
 const scene = new THREE.Scene();
+
+/* =========================
+   CAMERA
+========================= */
 
 const camera = new THREE.PerspectiveCamera(
   60,
@@ -27,86 +86,237 @@ const camera = new THREE.PerspectiveCamera(
 
 camera.position.z = 6;
 
-const renderer = new THREE.WebGLRenderer({ antialias:true });
-renderer.setSize(window.innerWidth, window.innerHeight);
+/* =========================
+   RENDERER
+========================= */
+
+const renderer = new THREE.WebGLRenderer({
+  antialias:true
+});
+
+renderer.setSize(window.innerWidth,window.innerHeight);
+
 document.body.appendChild(renderer.domElement);
 
-/* LIGHT */
+/* =========================
+   LIGHT
+========================= */
+
 scene.add(new THREE.AmbientLight(0x666666));
 
-const light = new THREE.PointLight(0xffffff, 4);
+const light = new THREE.PointLight(0xffffff,4);
 light.position.set(5,5,5);
+
 scene.add(light);
 
 /* =========================
    PLANET
 ========================= */
+
 const planet = new THREE.Mesh(
-  new THREE.SphereGeometry(2, 64, 64),
+
+  new THREE.SphereGeometry(2,128,128),
+
   new THREE.MeshStandardMaterial({
-    color: 0x2266ff
+    color:0x2266ff,
+    roughness:1
   })
+
 );
 
 scene.add(planet);
 
 /* =========================
-   CITY SYSTEM
+   ATMOSPHERE
 ========================= */
+
+const atmosphere = new THREE.Mesh(
+
+  new THREE.SphereGeometry(2.08,128,128),
+
+  new THREE.MeshBasicMaterial({
+    color:0x4da6ff,
+    transparent:true,
+    opacity:0.15
+  })
+
+);
+
+scene.add(atmosphere);
+
+/* =========================
+   STARS
+========================= */
+
+const starsGeo = new THREE.BufferGeometry();
+
+const starsVertices = [];
+
+for(let i=0;i<4000;i++){
+
+  starsVertices.push(
+    (Math.random()-0.5)*200
+  );
+
+  starsVertices.push(
+    (Math.random()-0.5)*200
+  );
+
+  starsVertices.push(
+    (Math.random()-0.5)*200
+  );
+}
+
+starsGeo.setAttribute(
+  "position",
+  new THREE.Float32BufferAttribute(starsVertices,3)
+);
+
+const stars = new THREE.Points(
+
+  starsGeo,
+
+  new THREE.PointsMaterial({
+    color:0xffffff,
+    size:0.15
+  })
+
+);
+
+scene.add(stars);
+
+/* =========================
+   CITY GROUP
+========================= */
+
 const cityGroup = new THREE.Group();
+
 scene.add(cityGroup);
+
+/* =========================
+   BUILD SYSTEM
+========================= */
+
+let buildLevel = 1;
 
 function buildCity(level){
 
   cityGroup.clear();
 
-  const count = 120;
+  const radius = 2.03;
+
+  const count = 150 + level*40;
 
   for(let i=0;i<count;i++){
 
-    const b = new THREE.Mesh(
-      new THREE.BoxGeometry(0.2,0.2+level,0.2),
-      new THREE.MeshStandardMaterial({ color: 0xffffff })
+    const height =
+      0.03 +
+      Math.random()*0.22 +
+      level*0.003;
+
+    const building = new THREE.Mesh(
+
+      new THREE.BoxGeometry(
+        0.025,
+        height,
+        0.025
+      ),
+
+      new THREE.MeshStandardMaterial({
+        color:0xffffff,
+        emissive:0x222222
+      })
+
     );
 
-    b.position.set(
-      (Math.random()-0.5)*4,
-      (Math.random()-0.5)*4,
-      (Math.random()-0.5)*4
+    /* 🌍 SPHERE POSITION */
+    const phi = Math.random()*Math.PI*2;
+
+    const theta = Math.acos(
+      (Math.random()*2)-1
     );
 
-    cityGroup.add(b);
+    const x =
+      radius *
+      Math.sin(theta) *
+      Math.cos(phi);
+
+    const y =
+      radius *
+      Math.cos(theta);
+
+    const z =
+      radius *
+      Math.sin(theta) *
+      Math.sin(phi);
+
+    building.position.set(x,y,z);
+
+    /* 🔥 ROTATE OUTWARD */
+    building.lookAt(0,0,0);
+
+    building.translateY(height/2);
+
+    cityGroup.add(building);
   }
 }
 
-/* =========================
-   TEST BUILD
-========================= */
-let level = 1;
-buildCity(level);
+/* FIRST BUILD */
+buildCity(buildLevel);
 
 /* =========================
-   CLICK TO UPGRADE
+   UPGRADE
 ========================= */
-window.addEventListener("click",()=>{
-  level++;
-  buildCity(level);
-});
+
+function upgradeCity(){
+
+  buildLevel++;
+
+  buildCity(buildLevel);
+
+  document.getElementById(
+    "levelText"
+  ).innerText =
+    "Build Level: " + buildLevel;
+}
 
 /* =========================
-   LOOP
+   ANIMATION
 ========================= */
+
 function animate(){
 
   requestAnimationFrame(animate);
 
-  planet.rotation.y += 0.002;
-  cityGroup.rotation.y += 0.002;
+  planet.rotation.y += 0.0015;
+
+  atmosphere.rotation.y += 0.002;
+
+  cityGroup.rotation.y += 0.0015;
 
   renderer.render(scene,camera);
 }
 
 animate();
+
+/* =========================
+   RESIZE
+========================= */
+
+window.addEventListener("resize",()=>{
+
+  camera.aspect =
+    window.innerWidth /
+    window.innerHeight;
+
+  camera.updateProjectionMatrix();
+
+  renderer.setSize(
+    window.innerWidth,
+    window.innerHeight
+  );
+
+});
 
 </script>
 
