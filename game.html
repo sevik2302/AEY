@@ -5,100 +5,164 @@
 <title>AEY GALAXY</title>
 
 <style>
+
 body{
   margin:0;
   overflow:hidden;
   background:black;
-  font-family:Arial, sans-serif;
+  font-family:Arial,sans-serif;
 }
 
-/* UI PANEL */
-#ui{
+/* =========================
+   UI
+========================= */
+
+#topbar{
+
   position:fixed;
-  bottom:25px;
-  left:50%;
-  transform:translateX(-50%);
-  display:flex;
-  gap:14px;
-  z-index:10;
-}
 
-/* BUTTONS */
-button{
-  padding:14px 24px;
-  border:none;
-  border-radius:16px;
-  background:rgba(15,15,25,0.9);
-  color:white;
-  font-size:16px;
-  cursor:pointer;
-  backdrop-filter:blur(10px);
-  transition:0.2s;
-  border:1px solid rgba(255,255,255,0.08);
-}
-
-button:hover{
-  transform:scale(1.06);
-  background:rgba(35,35,55,0.95);
-}
-
-/* INFO */
-#info{
-  position:fixed;
   top:20px;
   left:20px;
-  z-index:10;
+
   color:white;
+
+  z-index:20;
+
+  background:rgba(10,10,20,0.7);
+
+  padding:18px;
+
+  border-radius:18px;
+
+  backdrop-filter:blur(12px);
+
+  min-width:280px;
+
+  border:1px solid rgba(255,255,255,0.08);
+
 }
 
-#title{
-  font-size:28px;
+#logo{
+
+  font-size:30px;
+
   font-weight:bold;
+
   letter-spacing:2px;
-  margin-bottom:12px;
+
+  margin-bottom:14px;
+
 }
 
 .stat{
-  margin-top:8px;
-  font-size:17px;
-  opacity:0.92;
-}
 
-/* BUILD BAR */
-#bar{
-  width:240px;
-  height:12px;
-  background:rgba(255,255,255,0.1);
-  border-radius:20px;
-  overflow:hidden;
   margin-top:10px;
+
+  font-size:16px;
+
+  opacity:0.95;
+
 }
 
-#fill{
+#progress{
+
+  width:100%;
+
+  height:12px;
+
+  background:rgba(255,255,255,0.08);
+
+  border-radius:20px;
+
+  margin-top:18px;
+
+  overflow:hidden;
+
+}
+
+#progressFill{
+
   width:10%;
+
   height:100%;
+
   background:linear-gradient(
     90deg,
     #00c6ff,
     #0072ff
   );
+
   border-radius:20px;
-  transition:0.35s;
+
+  transition:0.4s;
+
 }
+
+#buttons{
+
+  position:fixed;
+
+  bottom:30px;
+
+  left:50%;
+
+  transform:translateX(-50%);
+
+  display:flex;
+
+  gap:16px;
+
+  z-index:20;
+
+}
+
+button{
+
+  padding:16px 28px;
+
+  border:none;
+
+  border-radius:18px;
+
+  background:rgba(18,18,30,0.92);
+
+  color:white;
+
+  font-size:16px;
+
+  cursor:pointer;
+
+  backdrop-filter:blur(10px);
+
+  border:1px solid rgba(255,255,255,0.08);
+
+  transition:0.25s;
+
+}
+
+button:hover{
+
+  transform:scale(1.06);
+
+  background:rgba(40,40,70,0.95);
+
+}
+
 </style>
 </head>
 
 <body>
 
-<!-- INFO -->
-<div id="info">
+<!-- UI -->
 
-  <div id="title">
+<div id="topbar">
+
+  <div id="logo">
     AEY GALAXY
   </div>
 
   <div class="stat" id="planetText">
-    Planet Level: 1
+    Planet: Terra Prime
   </div>
 
   <div class="stat" id="cityText">
@@ -106,27 +170,30 @@ button:hover{
   </div>
 
   <div class="stat" id="populationText">
-    Population: 1.2M
+    Population: 1.2B
+  </div>
+
+  <div class="stat" id="fragmentsText">
+    Fragments: 0
   </div>
 
   <div class="stat" id="economyText">
     Economy: Stable
   </div>
 
-  <div id="bar">
-    <div id="fill"></div>
+  <div id="progress">
+    <div id="progressFill"></div>
   </div>
 
 </div>
 
-<!-- UI -->
-<div id="ui">
+<div id="buttons">
 
   <button onclick="upgradeCity()">
     BUILD CITY
   </button>
 
-  <button onclick="upgradePlanet()">
+  <button onclick="nextPlanet()">
     NEXT PLANET
   </button>
 
@@ -163,13 +230,13 @@ const renderer = new THREE.WebGLRenderer({
   antialias:true
 });
 
+renderer.setPixelRatio(
+  window.devicePixelRatio
+);
+
 renderer.setSize(
   window.innerWidth,
   window.innerHeight
-);
-
-renderer.setPixelRatio(
-  window.devicePixelRatio
 );
 
 document.body.appendChild(
@@ -181,16 +248,24 @@ document.body.appendChild(
 ========================= */
 
 scene.add(
-  new THREE.AmbientLight(0x404040,2)
+  new THREE.AmbientLight(
+    0x404040,
+    2
+  )
 );
 
-const sun = new THREE.PointLight(
-  0xffffff,
+const sun =
+  new THREE.PointLight(
+    0xffffff,
+    7,
+    100
+  );
+
+sun.position.set(
+  10,
   6,
-  100
+  8
 );
-
-sun.position.set(10,5,10);
 
 scene.add(sun);
 
@@ -203,39 +278,44 @@ const starsGeometry =
 
 const starsVertices = [];
 
-for(let i=0;i<7000;i++){
+for(let i=0;i<12000;i++){
 
   starsVertices.push(
-    (Math.random()-0.5)*400
+    (Math.random()-0.5)*500
   );
 
   starsVertices.push(
-    (Math.random()-0.5)*400
+    (Math.random()-0.5)*500
   );
 
   starsVertices.push(
-    (Math.random()-0.5)*400
+    (Math.random()-0.5)*500
   );
+
 }
 
 starsGeometry.setAttribute(
+
   "position",
+
   new THREE.Float32BufferAttribute(
     starsVertices,
     3
   )
+
 );
 
-const starsMaterial =
-  new THREE.PointsMaterial({
-    color:0xffffff,
-    size:0.12
-  });
+const stars =
+  new THREE.Points(
 
-const stars = new THREE.Points(
-  starsGeometry,
-  starsMaterial
-);
+    starsGeometry,
+
+    new THREE.PointsMaterial({
+      color:0xffffff,
+      size:0.08
+    })
+
+  );
 
 scene.add(stars);
 
@@ -265,31 +345,32 @@ const cloudsTexture =
    PLANET
 ========================= */
 
-const planet = new THREE.Mesh(
+const planet =
+  new THREE.Mesh(
 
-  new THREE.SphereGeometry(
-    2,
-    128,
-    128
-  ),
-
-  new THREE.MeshStandardMaterial({
-
-    map:earthTexture,
-
-    emissiveMap:earthNight,
-
-    emissive:new THREE.Color(
-      0xffffff
+    new THREE.SphereGeometry(
+      2,
+      128,
+      128
     ),
 
-    emissiveIntensity:0.28,
+    new THREE.MeshStandardMaterial({
 
-    roughness:1
+      map:earthTexture,
 
-  })
+      emissiveMap:earthNight,
 
-);
+      emissive:new THREE.Color(
+        0xffffff
+      ),
+
+      emissiveIntensity:0.35,
+
+      roughness:1
+
+    })
+
+  );
 
 scene.add(planet);
 
@@ -297,25 +378,26 @@ scene.add(planet);
    CLOUDS
 ========================= */
 
-const clouds = new THREE.Mesh(
+const clouds =
+  new THREE.Mesh(
 
-  new THREE.SphereGeometry(
-    2.03,
-    128,
-    128
-  ),
+    new THREE.SphereGeometry(
+      2.03,
+      128,
+      128
+    ),
 
-  new THREE.MeshStandardMaterial({
+    new THREE.MeshStandardMaterial({
 
-    map:cloudsTexture,
+      map:cloudsTexture,
 
-    transparent:true,
+      transparent:true,
 
-    opacity:0.45
+      opacity:0.45
 
-  })
+    })
 
-);
+  );
 
 scene.add(clouds);
 
@@ -327,7 +409,7 @@ const atmosphere =
   new THREE.Mesh(
 
     new THREE.SphereGeometry(
-      2.09,
+      2.08,
       128,
       128
     ),
@@ -338,11 +420,11 @@ const atmosphere =
 
       transparent:true,
 
-      opacity:0.14
+      opacity:0.12
 
     })
 
-);
+  );
 
 scene.add(atmosphere);
 
@@ -355,10 +437,25 @@ const cityGroup =
 
 scene.add(cityGroup);
 
-let cityLevel = 1;
-let planetLevel = 1;
+/* =========================
+   GAME VALUES
+========================= */
 
-/* BUILD CITY */
+let cityLevel = 1;
+let fragments = 0;
+let currentPlanet = 0;
+
+const planets = [
+  "Terra Prime",
+  "Nova Lux",
+  "Cryon",
+  "Vortex IX",
+  "Aether"
+];
+
+/* =========================
+   BUILD CITY
+========================= */
 
 function buildCity(level){
 
@@ -366,133 +463,171 @@ function buildCity(level){
 
   const radius = 2.01;
 
-  const count =
-    400 + level*120;
+  /* 🌆 CITY CLUSTERS */
+  const megaCities =
+    6 + level;
 
-  for(let i=0;i<count;i++){
+  for(let c=0;c<megaCities;c++){
 
-    const zone = Math.random();
-
-    let height;
-
-    /* suburbs */
-    if(zone < 0.7){
-
-      height =
-        0.02 +
-        Math.random()*0.06;
-
-    }
-
-    /* downtown */
-    else if(zone < 0.94){
-
-      height =
-        0.08 +
-        Math.random()*0.18;
-
-    }
-
-    /* megatowers */
-    else{
-
-      height =
-        0.25 +
-        Math.random()*0.55;
-
-    }
-
-    height += level*0.002;
-
-    const building =
-      new THREE.Mesh(
-
-        new THREE.BoxGeometry(
-          0.018,
-          height,
-          0.018
-        ),
-
-        new THREE.MeshStandardMaterial({
-
-          color:0xdedede,
-
-          emissive:new THREE.Color(
-            0x222222
-          ),
-
-          metalness:0.3
-
-        })
-
-      );
-
-    const phi =
+    const cityPhi =
       Math.random() *
       Math.PI * 2;
 
-    const theta =
+    const cityTheta =
       Math.acos(
         (Math.random()*2)-1
       );
 
-    const x =
+    const cityX =
       radius *
-      Math.sin(theta) *
-      Math.cos(phi);
+      Math.sin(cityTheta) *
+      Math.cos(cityPhi);
 
-    const y =
+    const cityY =
       radius *
-      Math.cos(theta);
+      Math.cos(cityTheta);
 
-    const z =
+    const cityZ =
       radius *
-      Math.sin(theta) *
-      Math.sin(phi);
+      Math.sin(cityTheta) *
+      Math.sin(cityPhi);
 
-    building.position.set(x,y,z);
+    const buildings =
+      18 + level*2;
 
-    building.lookAt(0,0,0);
+    for(let i=0;i<buildings;i++){
 
-    building.translateY(
-      height/2
-    );
+      const type = Math.random();
 
-    cityGroup.add(building);
+      let height;
+      let width;
+      let color;
+
+      /* suburbs */
+      if(type < 0.7){
+
+        height =
+          0.02 +
+          Math.random()*0.05;
+
+        width = 0.012;
+
+        color = 0xbfbfbf;
+      }
+
+      /* downtown */
+      else if(type < 0.94){
+
+        height =
+          0.08 +
+          Math.random()*0.16;
+
+        width = 0.018;
+
+        color = 0xdedede;
+      }
+
+      /* skyscrapers */
+      else{
+
+        height =
+          0.25 +
+          Math.random()*0.5;
+
+        width = 0.03;
+
+        color = 0xaad6ff;
+      }
+
+      const building =
+        new THREE.Mesh(
+
+          new THREE.BoxGeometry(
+            width,
+            height,
+            width
+          ),
+
+          new THREE.MeshStandardMaterial({
+
+            color:color,
+
+            emissive:new THREE.Color(
+              0x222222
+            ),
+
+            metalness:0.35
+
+          })
+
+        );
+
+      const spread = 0.22;
+
+      building.position.set(
+
+        cityX +
+        (Math.random()-0.5)*spread,
+
+        cityY +
+        (Math.random()-0.5)*spread,
+
+        cityZ +
+        (Math.random()-0.5)*spread
+
+      );
+
+      building.lookAt(0,0,0);
+
+      building.translateY(
+        height/2
+      );
+
+      cityGroup.add(building);
+    }
   }
 }
 
-/* FIRST BUILD */
+/* INITIAL CITY */
 
 buildCity(cityLevel);
 
 /* =========================
-   UPGRADE CITY
+   BUILD BUTTON
 ========================= */
 
 function upgradeCity(){
 
   cityLevel++;
 
+  fragments += 150;
+
   buildCity(cityLevel);
 
   document.getElementById(
     "cityText"
   ).innerText =
-    "City Level: " + cityLevel;
+    "City Level: " +
+    cityLevel;
 
   document.getElementById(
     "populationText"
   ).innerText =
     "Population: " +
-    (1.2 + cityLevel*0.8).toFixed(1)
-    + "M";
+    (1.2 + cityLevel*0.25).toFixed(1)
+    + "B";
 
   document.getElementById(
-    "fill"
+    "fragmentsText"
+  ).innerText =
+    "Fragments: " +
+    fragments;
+
+  document.getElementById(
+    "progressFill"
   ).style.width =
     Math.min(
-      cityLevel*10,
+      cityLevel*6,
       100
     ) + "%";
 }
@@ -501,23 +636,40 @@ function upgradeCity(){
    NEXT PLANET
 ========================= */
 
-function upgradePlanet(){
+function nextPlanet(){
 
-  planetLevel++;
+  currentPlanet++;
+
+  if(currentPlanet >= planets.length){
+
+    currentPlanet = 0;
+
+  }
 
   document.getElementById(
     "planetText"
   ).innerText =
-    "Planet Level: " +
-    planetLevel;
+    "Planet: " +
+    planets[currentPlanet];
 
-  /* slight color variation */
-  planet.material.emissiveIntensity =
-    0.2 + planetLevel*0.03;
+  /* 🌍 DIFFERENT COLORS */
+
+  const colors = [
+    0xffffff,
+    0xffcccc,
+    0xaad6ff,
+    0xffe0aa,
+    0xd6b3ff
+  ];
+
+  planet.material.emissive =
+    new THREE.Color(
+      colors[currentPlanet]
+    );
 }
 
 /* =========================
-   MOUSE ROTATION
+   CAMERA CONTROL
 ========================= */
 
 let mouseX = 0;
@@ -548,20 +700,20 @@ function animate(){
     animate
   );
 
-  planet.rotation.y += 0.0012;
+  planet.rotation.y += 0.0011;
 
   clouds.rotation.y += 0.0015;
 
   atmosphere.rotation.y += 0.001;
 
-  cityGroup.rotation.y += 0.0012;
+  cityGroup.rotation.y += 0.0011;
 
   camera.position.x +=
-    (mouseX*0.6 - camera.position.x)
+    (mouseX*0.8 - camera.position.x)
     *0.02;
 
   camera.position.y +=
-    (-mouseY*0.4 - camera.position.y)
+    (-mouseY*0.5 - camera.position.y)
     *0.02;
 
   camera.lookAt(0,0,0);
