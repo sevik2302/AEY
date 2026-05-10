@@ -19,7 +19,6 @@ body{margin:0;background:black;color:white;font-family:Arial;overflow:hidden}
 #ui{position:fixed;top:20px;left:20px;z-index:10}
 button{margin:5px;padding:10px;border-radius:10px;cursor:pointer}
 </style>
-
 </head>
 
 <body>
@@ -28,33 +27,14 @@ button{margin:5px;padding:10px;border-radius:10px;cursor:pointer}
   <button onclick="tap()">TAP</button>
   <button onclick="build()">BUILD</button>
   <button onclick="nextPlanet()">NEXT PLANET</button>
-
   <div id="info"></div>
 </div>
 
 <script>
-
 (async ()=>{
-
   await init();
-
-  setInterval(()=>{
-
-    if(!player) return;
-
-    document.getElementById("info").innerText =
-    `
-fragments: ${player.fragments}
-level: ${player.level}
-planet: ${player.planet}
-city: ${player.build_level}
-pvp: ${player.pvp_score}
-    `;
-
-  },500);
-
+  startRenderer(); // ВАЖНО
 })();
-
 </script>
 
 </body>
