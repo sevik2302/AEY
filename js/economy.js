@@ -1,16 +1,17 @@
 setInterval(async ()=>{
-  const { data } = await sb.from("players").select("*");
 
-  let sum = 0;
-  data.forEach(p=>{
-    sum += p.fragments;
-  });
+const { data } = await sb.from("players").select("*");
 
-  const price = 1 + sum * 0.0001;
+let total = 0;
+data.forEach(p=>{
+  total += p.fragments;
+});
 
-  await sb.from("market").insert({
-    price,
-    volume: sum
-  });
+const price = 1 + total * 0.00005;
+
+await sb.from("market").insert({
+  price,
+  volume: total
+});
 
 }, 8000);
