@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>AEY GALAXY FIXED</title>
+<title>AEY GALAXY v4</title>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -10,7 +10,7 @@
 <script src="js/supabase.js"></script>
 <script src="js/game.js"></script>
 <script src="js/renderer.js"></script>
-<script src="js/planets.js"></script>
+<script src="js/galaxy.js"></script>
 
 <style>
 body{
@@ -20,15 +20,28 @@ body{
   font-family:Arial;
 }
 
+/* TOP HUD */
 #hud{
   position:fixed;
   top:15px;
   left:15px;
   color:white;
+  font-size:13px;
   z-index:10;
-  font-size:14px;
+  opacity:0.9;
+  line-height:1.5;
 }
 
+/* TITLE */
+#title{
+  position:fixed;
+  top:15px;
+  right:15px;
+  color:#66ccff;
+  font-size:16px;
+}
+
+/* GALAXY PANEL */
 #panel{
   position:fixed;
   bottom:0;
@@ -36,20 +49,34 @@ body{
   display:flex;
   justify-content:center;
   gap:10px;
-  padding:15px;
-  background:rgba(0,0,0,0.6);
+  padding:18px;
+  background:rgba(0,0,0,0.65);
+  backdrop-filter: blur(12px);
 }
 
+/* BUTTONS */
 .btn{
-  padding:10px 16px;
-  border-radius:10px;
-  border:1px solid #444;
+  padding:12px 18px;
+  border-radius:12px;
+  border:1px solid #333;
   background:#111;
   color:white;
   cursor:pointer;
+  transition:0.2s;
 }
+
+.btn:hover{
+  transform:translateY(-2px);
+  background:#1a1a1a;
+}
+
 .btn:active{
   transform:scale(0.95);
+}
+
+/* LOCK TEXT */
+.lock{
+  color:#ff5555;
 }
 </style>
 
@@ -59,15 +86,16 @@ body{
 
 <div id="hud">
   <div id="frag">Fragments: 0</div>
-  <div id="lvl">Planet lvl: 1</div>
-  <div id="build">Build: 0</div>
-  <div id="pvp">PvP: 0</div>
+  <div id="planet">Planet: 1</div>
+  <div id="level">Level: 0</div>
 </div>
 
+<div id="title">AEY GALAXY SYSTEM v4</div>
+
 <div id="panel">
-  <button class="btn" onclick="tap()">TAP</button>
-  <button class="btn" onclick="build()">BUILD</button>
-  <button class="btn" onclick="upgradePlanet()">UPGRADE</button>
+  <button class="btn" onclick="tap()">⚡ TAP</button>
+  <button class="btn" onclick="build()">🏙 BUILD</button>
+  <button class="btn" onclick="nextPlanet()">🌍 NEXT</button>
 </div>
 
 <script>
