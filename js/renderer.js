@@ -1,27 +1,23 @@
-const scene = new THREE.Scene();
+let scene, camera, renderer;
 
-/* FOG */
-scene.fog = new THREE.FogExp2(0x000000, 0.03);
+function startRenderer(){
 
-/* CAMERA */
-const camera = new THREE.PerspectiveCamera(
+scene = new THREE.Scene();
+
+camera = new THREE.PerspectiveCamera(
   60, innerWidth/innerHeight, 0.1, 1000
 );
+
 camera.position.z = 14;
 
-/* RENDER */
-const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer = new THREE.WebGLRenderer({antialias:true});
 renderer.setSize(innerWidth, innerHeight);
 document.body.appendChild(renderer.domElement);
 
-/* LIGHT */
-const sun = new THREE.PointLight(0xffffff, 4);
-sun.position.set(10,10,10);
-scene.add(sun);
+const light = new THREE.PointLight(0xffffff, 4);
+light.position.set(10,10,10);
+scene.add(light);
 
-scene.add(new THREE.AmbientLight(0x222222));
-
-/* STARS */
 const geo = new THREE.BufferGeometry();
 const pos = [];
 
@@ -39,3 +35,12 @@ const stars = new THREE.Points(
 );
 
 scene.add(stars);
+
+animate();
+
+}
+
+function animate(){
+  requestAnimationFrame(animate);
+  renderer.render(scene,camera);
+}
