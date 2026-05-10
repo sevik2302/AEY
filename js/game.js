@@ -1,14 +1,11 @@
 window.game = {
 
   cityLevel:1,
-
   fragments:0,
-
   completion:0,
+  buildCost:100,
 
   currentPlanet:0,
-
-  buildCost:100,
 
   planets:[
     "Terra Prime",
@@ -21,7 +18,7 @@ window.game = {
 };
 
 /* =========================
-   TAP
+   TAP SYSTEM (ГЛАВНЫЙ ИСТОЧНИК FRAGMENTS)
 ========================= */
 
 window.tapFragments =
@@ -34,7 +31,7 @@ window.tapFragments =
   };
 
 /* =========================
-   BUILD (FIXED PROGRESSION)
+   BUILD SYSTEM
 ========================= */
 
 window.buildCityUpgrade =
@@ -57,7 +54,6 @@ window.buildCityUpgrade =
     game.buildCost =
       Math.floor(game.buildCost * 1.45);
 
-    /* 👇 IMPORTANT: only SCALE cities, DO NOT regenerate positions */
     growCities(game.cityLevel);
 
     updateUI();
