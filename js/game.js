@@ -1,6 +1,7 @@
 let userId;
 let player;
 
+/* INIT */
 async function init(){
 
   userId = localStorage.getItem("aey_id");
@@ -21,8 +22,8 @@ async function init(){
       id: userId,
       fragments: 0,
       build: 0,
-      planet_level: 1,
-      pvp: 0
+      planet: 0,
+      level: 0
     };
 
     await sb.from("players").insert(p);
@@ -37,27 +38,14 @@ async function init(){
 function updateHUD(){
   if(!player) return;
 
-  document.getElementById("frag").innerText = "Fragments: " + player.fragments;
-  document.getElementById("lvl").innerText = "Planet lvl: " + player.planet_level;
-  document.getElementById("build").innerText = "Build: " + player.build;
-  document.getElementById("pvp").innerText = "PvP: " + player.pvp;
-}
+  document.getElementById("frag").innerText =
+    "Fragments: " + player.fragments;
 
-/* 🔥 ВАЖНО: СВЯЗЬ С 3D */
-function syncVisuals(){
+  document.getElementById("planet").innerText =
+    "Planet: " + (player.planet + 1);
 
-  if(!window.planet || !player) return;
-
-  // 🌍 рост планеты
-  const s = 1 + player.planet_level * 0.05;
-  planet.scale.set(s,s,s);
-
-  // 🏙 рост зданий
-  scene.children.forEach(o=>{
-    if(o.userData && o.userData.city){
-      o.scale.y = 1 + player.build * 0.15;
-    }
-  });
+  document.getElementById("level").innerText =
+    "Level: " + player.level;
 }
 
 /* TAP */
@@ -65,22 +53,17 @@ let lastTap = 0;
 
 async function tap(){
   if(!player) return;
-  if(Date.now() - lastTap < 500) return;
+  if(Date.now() - lastTap < 400) return;
 
   lastTap = Date.now();
 
   player.fragments++;
-  player.pvp++;
 
   await sb.from("players")
-    .update({
-      fragments: player.fragments,
-      pvp: player.pvp
-    })
+    .update({ fragments: player.fragments })
     .eq("id", userId);
 
   updateHUD();
-  syncVisuals();
 }
 
 /* BUILD */
@@ -101,26 +84,32 @@ async function build(){
     .eq("id", userId);
 
   updateHUD();
-  syncVisuals();
 }
 
-/* UPGRADE PLANET */
-async function upgradePlanet(){
-  if(!player) return;
+/* NEXT PLANET */
+async function nextPlanet(){
 
-  const cost = 50 * player.planet_level;
+  const unlocked = player.planet;
+
+  if(unlocked >= galaxy.length - 1){
+    alert("MAX PLANETS REACHED");
+    return;
+  }
+
+  const cost = 50 * (player.planet + 1);
   if(player.fragments < cost) return;
 
   player.fragments -= cost;
-  player.planet_level++;
+  player.planet++;
 
   await sb.from("players")
     .update({
       fragments: player.fragments,
-      planet_level: player.planet_level
+      planet: player.planet
     })
     .eq("id", userId);
 
   updateHUD();
-  syncVisuals();
+
+  switchPlanet(player.planet);
 }
