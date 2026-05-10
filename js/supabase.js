@@ -1,4 +1,4 @@
 window.sb = supabase.createClient(
-  "YOUR_SUPABASE_URL",
-  "YOUR_SUPABASE_KEY"
+  "https://qdvohbjzsuhxmexwfvxu.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkdm9oYmp6c3VoeG1leHdmdnh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyODUwMjIsImV4cCI6MjA5Mzg2MTAyMn0.SgipxGPpNkCL5zn6uJ3IBaI3xdlh9CT6cEb-ovJxc18"
 );
