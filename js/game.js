@@ -1,7 +1,6 @@
 let userId;
 let player;
 
-/* INIT */
 async function init(){
 
   userId = localStorage.getItem("aey_id");
@@ -22,8 +21,8 @@ async function init(){
       id: userId,
       fragments: 0,
       build: 0,
-      planet: 0,
-      level: 0
+      planet_level: 1,
+      pvp: 0
     };
 
     await sb.from("players").insert(p);
@@ -42,10 +41,15 @@ function updateHUD(){
     "Fragments: " + player.fragments;
 
   document.getElementById("planet").innerText =
-    "Planet: " + (player.planet + 1);
+    "Planet: " + player.planet_level;
 
-  document.getElementById("level").innerText =
-    "Level: " + player.level;
+  const percent = Math.min(player.build * 10, 100);
+
+  document.getElementById("buildText").innerText =
+    "Build: " + percent + "%";
+
+  document.getElementById("buildFill").style.width =
+    percent + "%";
 }
 
 /* TAP */
@@ -64,6 +68,7 @@ async function tap(){
     .eq("id", userId);
 
   updateHUD();
+  syncVisuals();
 }
 
 /* BUILD */
@@ -84,32 +89,43 @@ async function build(){
     .eq("id", userId);
 
   updateHUD();
+  syncVisuals();
 }
 
-/* NEXT PLANET */
-async function nextPlanet(){
+/* UPGRADE */
+async function upgradePlanet(){
+  if(!player) return;
 
-  const unlocked = player.planet;
-
-  if(unlocked >= galaxy.length - 1){
-    alert("MAX PLANETS REACHED");
-    return;
-  }
-
-  const cost = 50 * (player.planet + 1);
+  const cost = 50 * player.planet_level;
   if(player.fragments < cost) return;
 
   player.fragments -= cost;
-  player.planet++;
+  player.planet_level++;
 
   await sb.from("players")
     .update({
       fragments: player.fragments,
-      planet: player.planet
+      planet_level: player.planet_level
     })
     .eq("id", userId);
 
   updateHUD();
+  syncVisuals();
+}
 
-  switchPlanet(player.planet);
+/* VISUAL SYNC */
+function syncVisuals(){
+
+  if(!window.planet || !player) return;
+
+  // 🌍 планета ярче + больше
+  const s = 1 + player.planet_level * 0.08;
+  planet.scale.set(s,s,s);
+
+  // 🏙 здания растут
+  scene.children.forEach(o=>{
+    if(o.userData && o.userData.city){
+      o.scale.y = 1 + player.build * 0.2;
+    }
+  });
 }
