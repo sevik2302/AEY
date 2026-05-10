@@ -2,9 +2,9 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>DEBUG PLANET</title>
+<title>AEY CLEAN</title>
 <style>
-body { margin:0; overflow:hidden; }
+body { margin:0; overflow:hidden; background:black; }
 </style>
 </head>
 <body>
@@ -12,8 +12,10 @@ body { margin:0; overflow:hidden; }
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 
 <script>
-console.log("START TEST");
 
+/* =========================
+   CORE ENGINE
+========================= */
 const scene = new THREE.Scene();
 
 const camera = new THREE.PerspectiveCamera(
@@ -23,49 +25,89 @@ const camera = new THREE.PerspectiveCamera(
   1000
 );
 
-camera.position.z = 5;
+camera.position.z = 6;
 
-const renderer = new THREE.WebGLRenderer({antialias:true});
+const renderer = new THREE.WebGLRenderer({ antialias:true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-/* 💡 LIGHT */
+/* LIGHT */
 scene.add(new THREE.AmbientLight(0x666666));
 
-const light = new THREE.PointLight(0xffffff, 5);
+const light = new THREE.PointLight(0xffffff, 4);
 light.position.set(5,5,5);
 scene.add(light);
 
-/* 🌍 PLANET */
+/* =========================
+   PLANET
+========================= */
 const planet = new THREE.Mesh(
   new THREE.SphereGeometry(2, 64, 64),
-  new THREE.MeshBasicMaterial({ color: 0x2266ff })
+  new THREE.MeshStandardMaterial({
+    color: 0x2266ff
+  })
 );
 
 scene.add(planet);
 
-/* 🔴 TEST CUBE */
-const cube = new THREE.Mesh(
-  new THREE.BoxGeometry(),
-  new THREE.MeshBasicMaterial({ color: 0xff0000 })
-);
+/* =========================
+   CITY SYSTEM
+========================= */
+const cityGroup = new THREE.Group();
+scene.add(cityGroup);
 
-cube.position.x = 4;
-scene.add(cube);
+function buildCity(level){
 
-/* LOOP */
+  cityGroup.clear();
+
+  const count = 120;
+
+  for(let i=0;i<count;i++){
+
+    const b = new THREE.Mesh(
+      new THREE.BoxGeometry(0.2,0.2+level,0.2),
+      new THREE.MeshStandardMaterial({ color: 0xffffff })
+    );
+
+    b.position.set(
+      (Math.random()-0.5)*4,
+      (Math.random()-0.5)*4,
+      (Math.random()-0.5)*4
+    );
+
+    cityGroup.add(b);
+  }
+}
+
+/* =========================
+   TEST BUILD
+========================= */
+let level = 1;
+buildCity(level);
+
+/* =========================
+   CLICK TO UPGRADE
+========================= */
+window.addEventListener("click",()=>{
+  level++;
+  buildCity(level);
+});
+
+/* =========================
+   LOOP
+========================= */
 function animate(){
+
   requestAnimationFrame(animate);
 
-  planet.rotation.y += 0.01;
-  cube.rotation.x += 0.01;
+  planet.rotation.y += 0.002;
+  cityGroup.rotation.y += 0.002;
 
   renderer.render(scene,camera);
 }
 
 animate();
 
-console.log("PLANET TEST READY");
 </script>
 
 </body>
