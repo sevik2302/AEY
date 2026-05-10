@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>AEY GALAXY</title>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="js/supabase.js"></script>
+<script src="js/game.js"></script>
+<script src="js/renderer.js"></script>
+<script src="js/planets.js"></script>
+<script src="js/economy.js"></script>
+<script src="js/pvp.js"></script>
+
+<style>
+body{margin:0;background:black;color:white;font-family:Arial;overflow:hidden}
+#ui{position:fixed;top:20px;left:20px;z-index:10}
+button{margin:5px;padding:10px;border-radius:10px;cursor:pointer}
+</style>
+
+</head>
+
+<body>
+
+<div id="ui">
+  <button onclick="tap()">TAP</button>
+  <button onclick="build()">BUILD</button>
+  <button onclick="nextPlanet()">NEXT PLANET</button>
+
+  <div id="info"></div>
+</div>
+
+<script>
+
+(async ()=>{
+
+  await init();
+
+  setInterval(()=>{
+
+    if(!player) return;
+
+    document.getElementById("info").innerText =
+    `
+fragments: ${player.fragments}
+level: ${player.level}
+planet: ${player.planet}
+city: ${player.build_level}
+pvp: ${player.pvp_score}
+    `;
+
+  },500);
+
+})();
+
+</script>
+
+</body>
+</html>
