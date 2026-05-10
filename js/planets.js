@@ -4,6 +4,7 @@ function createPlanet(){
 
 const loader = new THREE.TextureLoader();
 
+/* EARTH TEXTURE */
 const tex = loader.load(
   "https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg"
 );
@@ -24,19 +25,19 @@ const glow = new THREE.Mesh(
   new THREE.MeshBasicMaterial({
     color:0x3399ff,
     transparent:true,
-    opacity:0.15
+    opacity:0.12
   })
 );
 
 scene.add(glow);
 
 /* CITIES */
-for(let i=0;i<120;i++){
+for(let i=0;i<180;i++){
 
-  const h = Math.random()*0.3+0.05;
+  const h = Math.random()*0.4+0.05;
 
-  const box = new THREE.Mesh(
-    new THREE.BoxGeometry(0.03,h,0.03),
+  const b = new THREE.Mesh(
+    new THREE.BoxGeometry(0.02,h,0.02),
     new THREE.MeshStandardMaterial({
       color:0x888888
     })
@@ -47,13 +48,13 @@ for(let i=0;i<120;i++){
 
   const r = 2.52;
 
-  box.position.set(
+  b.position.set(
     r*Math.sin(theta)*Math.cos(phi),
     r*Math.cos(theta),
     r*Math.sin(theta)*Math.sin(phi)
   );
 
-  scene.add(box);
+  scene.add(b);
 }
 
 }
