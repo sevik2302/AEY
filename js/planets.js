@@ -1,77 +1,158 @@
-(function () {
+const loader =
+  new THREE.TextureLoader();
 
-  function waitForApp() {
+/* TEXTURES */
 
-    if (!window.app || !app.scene) {
-      console.log("WAITING FOR SCENE...");
-      return setTimeout(waitForApp, 100);
-    }
+const earthTexture =
+  loader.load(
+    "https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg"
+  );
 
-    initPlanet();
-  }
+const earthNight =
+  loader.load(
+    "https://threejs.org/examples/textures/planets/earth_lights_2048.png"
+  );
 
-  function initPlanet() {
+const cloudsTexture =
+  loader.load(
+    "https://threejs.org/examples/textures/planets/earth_clouds_1024.png"
+  );
 
-    console.log("PLANET INIT START");
+/* PLANET */
 
-    /* 🌍 ПЛАНЕТА (100% ВИДИМАЯ) */
-    app.planet = new THREE.Mesh(
-      new THREE.SphereGeometry(2.2, 64, 64),
-      new THREE.MeshBasicMaterial({
-        color: 0x1e90ff
-      })
-    );
+window.planet =
+  new THREE.Mesh(
 
-    app.scene.add(app.planet);
+    new THREE.SphereGeometry(
+      2,
+      128,
+      128
+    ),
 
-    console.log("PLANET ADDED");
+    new THREE.MeshStandardMaterial({
 
-    /* 🏙 ГОРОДА */
-    app.cityGroup = new THREE.Group();
-    app.scene.add(app.cityGroup);
+      map:earthTexture,
 
-    buildCity(1);
+      emissiveMap:earthNight,
 
-    console.log("PLANET SYSTEM READY");
-  }
+      emissive:new THREE.Color(
+        0xffffff
+      ),
 
-  /* =========================
-     🏙 ГОРОДА (ЖЁСТКИЙ ТЕСТ)
-  ========================= */
-  function buildCity(level) {
+      emissiveIntensity:0.35,
 
-    if (!app.cityGroup) return;
+      roughness:1
 
-    app.cityGroup.clear();
+    })
 
-    const count = 120;
+  );
 
-    for (let i = 0; i < count; i++) {
+scene.add(planet);
 
-      const cube = new THREE.Mesh(
-        new THREE.BoxGeometry(0.25, 0.25 + level, 0.25),
-        new THREE.MeshBasicMaterial({ color: 0xffffff })
-      );
+/* CLOUDS */
 
-      cube.position.set(
-        (Math.random() - 0.5) * 4,
-        (Math.random() - 0.5) * 4,
-        (Math.random() - 0.5) * 4
-      );
+window.clouds =
+  new THREE.Mesh(
 
-      app.cityGroup.add(cube);
-    }
+    new THREE.SphereGeometry(
+      2.03,
+      128,
+      128
+    ),
 
-    console.log("CITY BUILT:", count);
-  }
+    new THREE.MeshStandardMaterial({
 
-  /* =========================
-     EXPOSE API
-  ========================= */
-  window.app.buildCity = buildCity;
-  window.app.updateCity = buildCity;
+      map:cloudsTexture,
 
-  /* 🚀 START */
-  waitForApp();
+      transparent:true,
 
-})();
+      opacity:0.45
+
+    })
+
+  );
+
+scene.add(clouds);
+
+/* ATMOSPHERE */
+
+window.atmosphere =
+  new THREE.Mesh(
+
+    new THREE.SphereGeometry(
+      2.08,
+      128,
+      128
+    ),
+
+    new THREE.MeshBasicMaterial({
+
+      color:0x4da6ff,
+
+      transparent:true,
+
+      opacity:0.12
+
+    })
+
+  );
+
+scene.add(atmosphere);
+
+/* STARS */
+
+const starsGeometry =
+  new THREE.BufferGeometry();
+
+const starsVertices = [];
+
+for(let i=0;i<10000;i++){
+
+  starsVertices.push(
+    (Math.random()-0.5)*500
+  );
+
+  starsVertices.push(
+    (Math.random()-0.5)*500
+  );
+
+  starsVertices.push(
+    (Math.random()-0.5)*500
+  );
+
+}
+
+starsGeometry.setAttribute(
+
+  "position",
+
+  new THREE.Float32BufferAttribute(
+    starsVertices,
+    3
+  )
+
+);
+
+const stars =
+  new THREE.Points(
+
+    starsGeometry,
+
+    new THREE.PointsMaterial({
+
+      color:0xffffff,
+
+      size:0.08
+
+    })
+
+  );
+
+scene.add(stars);
+
+/* CITY GROUP */
+
+window.cityGroup =
+  new THREE.Group();
+
+scene.add(cityGroup);
