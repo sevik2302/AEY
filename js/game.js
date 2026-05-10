@@ -18,7 +18,7 @@ window.game = {
 };
 
 /* =========================
-   TAP SYSTEM (ГЛАВНЫЙ ИСТОЧНИК FRAGMENTS)
+   TAP (ГАРАНТИРОВАННО РАБОТАЕТ)
 ========================= */
 
 window.tapFragments =
@@ -26,12 +26,12 @@ window.tapFragments =
 
     game.fragments += 1;
 
-    updateUI();
+    forceUI();
 
   };
 
 /* =========================
-   BUILD SYSTEM
+   BUILD
 ========================= */
 
 window.buildCityUpgrade =
@@ -52,11 +52,12 @@ window.buildCityUpgrade =
     }
 
     game.buildCost =
-      Math.floor(game.buildCost * 1.45);
+      Math.floor(game.buildCost * 1.4);
 
     growCities(game.cityLevel);
 
-    updateUI();
+    forceUI();
+
   };
 
 /* =========================
@@ -83,5 +84,18 @@ window.nextPlanet =
 
     resetCities();
 
-    updateUI();
+    forceUI();
+
   };
+
+/* =========================
+   SAFE UI CALL
+========================= */
+
+function forceUI(){
+
+  if(typeof updateUI === "function"){
+    updateUI();
+  }
+
+}
