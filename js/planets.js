@@ -3,26 +3,19 @@ app.cityGroup = null;
 
 app.createPlanet = function () {
 
-  const tex = new THREE.TextureLoader().load(
-    "https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg"
-  );
+  console.log("CREATE PLANET OK");
 
-  /* 🌍 ПЛАНЕТА */
+  /* 🌍 ПРОСТАЯ ПЛАНЕТА (БЕЗ ТЕКСТУР) */
   app.planet = new THREE.Mesh(
     new THREE.SphereGeometry(2.2, 64, 64),
-    new THREE.MeshStandardMaterial({ map: tex })
+    new THREE.MeshStandardMaterial({
+      color: 0x2266ff
+    })
   );
 
   app.scene.add(app.planet);
 
-  /* 🔴 ТЕСТ (ЧТОБЫ ВСЕГДА ВИДЕТЬ) */
-  const test = new THREE.Mesh(
-    new THREE.BoxGeometry(0.5, 0.5, 0.5),
-    new THREE.MeshBasicMaterial({ color: 0xff0000 })
-  );
-
-  test.position.set(3, 0, 0);
-  app.scene.add(test);
+  console.log("PLANET ADDED TO SCENE");
 
   /* 🏙 ГОРОДА */
   app.cityGroup = new THREE.Group();
@@ -31,18 +24,22 @@ app.createPlanet = function () {
   app.buildCity(1);
 };
 
-/* 🏙 ГОРОДА */
+/* =========================
+   🏙 ГОРОДА (100% ВИДИМОСТЬ)
+========================= */
 app.buildCity = function (level) {
 
   app.cityGroup.clear();
 
-  const count = 80;
+  console.log("BUILD CITY:", level);
+
+  const count = 100;
 
   for (let i = 0; i < count; i++) {
 
     const b = new THREE.Mesh(
-      new THREE.BoxGeometry(0.2, 0.2 + level, 0.2),
-      new THREE.MeshStandardMaterial({ color: 0xffffff })
+      new THREE.BoxGeometry(0.3, 0.3 + level, 0.3),
+      new THREE.MeshBasicMaterial({ color: 0xffffff })
     );
 
     b.position.set(
@@ -53,12 +50,15 @@ app.buildCity = function (level) {
 
     app.cityGroup.add(b);
   }
+
+  console.log("CITY COUNT:", count);
 };
 
-/* 🔁 UPDATE */
 app.updateCity = function (level) {
   app.buildCity(level);
 };
 
-/* 🚀 АВТОЗАПУСК */
-app.createPlanet();
+/* 🚀 ГАРАНТИРОВАННЫЙ ЗАПУСК */
+setTimeout(() => {
+  app.createPlanet();
+}, 100);
