@@ -20,7 +20,6 @@ async function init(){
     p = {
       id: userId,
       fragments: 0,
-      level: 0,
       build: 0,
       planet_level: 1,
       pvp: 0
@@ -34,14 +33,31 @@ async function init(){
   updateHUD();
 }
 
-/* HUD UPDATE */
+/* HUD */
 function updateHUD(){
   if(!player) return;
 
-  document.getElementById("fragments").innerText = "Fragments: " + player.fragments;
-  document.getElementById("level").innerText = "Level: " + player.level;
-  document.getElementById("planet").innerText = "Planet: " + player.planet_level;
+  document.getElementById("frag").innerText = "Fragments: " + player.fragments;
+  document.getElementById("lvl").innerText = "Planet lvl: " + player.planet_level;
+  document.getElementById("build").innerText = "Build: " + player.build;
   document.getElementById("pvp").innerText = "PvP: " + player.pvp;
+}
+
+/* 🔥 ВАЖНО: СВЯЗЬ С 3D */
+function syncVisuals(){
+
+  if(!window.planet || !player) return;
+
+  // 🌍 рост планеты
+  const s = 1 + player.planet_level * 0.05;
+  planet.scale.set(s,s,s);
+
+  // 🏙 рост зданий
+  scene.children.forEach(o=>{
+    if(o.userData && o.userData.city){
+      o.scale.y = 1 + player.build * 0.15;
+    }
+  });
 }
 
 /* TAP */
@@ -50,10 +66,11 @@ let lastTap = 0;
 async function tap(){
   if(!player) return;
   if(Date.now() - lastTap < 500) return;
+
   lastTap = Date.now();
 
-  player.fragments += 1;
-  player.pvp += 1;
+  player.fragments++;
+  player.pvp++;
 
   await sb.from("players")
     .update({
@@ -63,6 +80,7 @@ async function tap(){
     .eq("id", userId);
 
   updateHUD();
+  syncVisuals();
 }
 
 /* BUILD */
@@ -83,6 +101,7 @@ async function build(){
     .eq("id", userId);
 
   updateHUD();
+  syncVisuals();
 }
 
 /* UPGRADE PLANET */
@@ -103,4 +122,5 @@ async function upgradePlanet(){
     .eq("id", userId);
 
   updateHUD();
+  syncVisuals();
 }
