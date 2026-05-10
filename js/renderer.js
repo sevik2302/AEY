@@ -1,46 +1,40 @@
-window.scene = new THREE.Scene();
-window.camera = null;
-window.renderer = null;
+window.app = {};
 
-function start() {
+app.scene = new THREE.Scene();
 
-  camera = new THREE.PerspectiveCamera(
-    60,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    1000
-  );
+app.camera = new THREE.PerspectiveCamera(
+  60,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  1000
+);
 
-  camera.position.z = 6;
+app.camera.position.z = 6;
 
-  renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  document.body.appendChild(renderer.domElement);
+app.renderer = new THREE.WebGLRenderer({ antialias: true });
 
-  /* 💡 СВЕТ */
-  scene.add(new THREE.AmbientLight(0x777777));
+app.renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(app.renderer.domElement);
 
-  const light = new THREE.PointLight(0xffffff, 5);
-  light.position.set(5, 5, 5);
-  scene.add(light);
+/* 💡 СВЕТ */
+app.scene.add(new THREE.AmbientLight(0x666666));
 
-  /* 🌍 ВАЖНО: планета создаётся ТОЛЬКО ПОСЛЕ сцены */
-  if (window.createPlanet) {
-    createPlanet();
+const light = new THREE.PointLight(0xffffff, 4);
+light.position.set(5, 5, 5);
+app.scene.add(light);
+
+/* 🚀 START LOOP */
+function loop() {
+  requestAnimationFrame(loop);
+
+  if (app.planet) {
+    app.planet.rotation.y += 0.002;
   }
 
-  animate();
+  app.renderer.render(app.scene, app.camera);
 }
 
-function animate() {
-  requestAnimationFrame(animate);
+loop();
 
-  if (window.planet) {
-    planet.rotation.y += 0.002;
-  }
-
-  renderer.render(scene, camera);
-}
-
-/* 🚀 СТАРТ */
-start();
+/* 🔥 ГЛОБАЛЬНЫЙ СТАРТ */
+window.app = app;
