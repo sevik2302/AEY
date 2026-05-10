@@ -3,7 +3,6 @@ let player;
 
 async function init(){
 
-  // LOCAL ID (ВАЖНО)
   userId = localStorage.getItem("aey_id");
 
   if(!userId){
@@ -18,23 +17,16 @@ async function init(){
     .single();
 
   if(!p){
-    await sb.from("players").insert({
-      id: userId,
-      fragments: 0,
-      level: 0,
-      planet: 0,
-      build_level: 0,
-      pvp_score: 0
-    });
-
     p = {
       id: userId,
       fragments: 0,
       level: 0,
-      planet: 0,
-      build_level: 0,
-      pvp_score: 0
+      build: 0,
+      planet_level: 1,
+      pvp: 0
     };
+
+    await sb.from("players").insert(p);
   }
 
   player = p;
@@ -42,49 +34,56 @@ async function init(){
 
 /* TAP */
 let lastTap = 0;
+
 async function tap(){
-  if(Date.now() - lastTap < 1000) return;
+  if(!player) return;
+
+  if(Date.now() - lastTap < 800) return;
   lastTap = Date.now();
 
-  player.fragments++;
-  player.pvp_score++;
+  player.fragments += 1;
+  player.pvp += 1;
 
   await sb.from("players")
     .update({
       fragments: player.fragments,
-      pvp_score: player.pvp_score
+      pvp: player.pvp
     })
     .eq("id", userId);
 }
 
-/* BUILD */
+/* BUILD CITY */
 async function build(){
-  const cost = 10 * (player.build_level + 1);
+  if(!player) return;
+
+  const cost = 10 * (player.build + 1);
   if(player.fragments < cost) return;
 
   player.fragments -= cost;
-  player.build_level++;
+  player.build++;
 
   await sb.from("players")
     .update({
       fragments: player.fragments,
-      build_level: player.build_level
+      build: player.build
     })
     .eq("id", userId);
 }
 
-/* NEXT PLANET */
-async function nextPlanet(){
-  const cost = 50 * (player.planet + 1);
+/* UPGRADE PLANET */
+async function upgradePlanet(){
+  if(!player) return;
+
+  const cost = 50 * player.planet_level;
   if(player.fragments < cost) return;
 
   player.fragments -= cost;
-  player.planet++;
+  player.planet_level++;
 
   await sb.from("players")
     .update({
       fragments: player.fragments,
-      planet: player.planet
+      planet_level: player.planet_level
     })
     .eq("id", userId);
 }
