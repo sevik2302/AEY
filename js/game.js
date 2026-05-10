@@ -1,139 +1,60 @@
-let userId;
-let player;
+window.game = {
 
-/* =========================
-   INIT
-========================= */
-async function init() {
+  cityLevel:1,
 
-  userId = localStorage.getItem("aey_id");
+  fragments:0,
 
-  if (!userId) {
-    userId = crypto.randomUUID();
-    localStorage.setItem("aey_id", userId);
-  }
+  completion:0,
 
-  let { data: p } = await sb
-    .from("players")
-    .select("*")
-    .eq("id", userId)
-    .single();
+  currentPlanet:0,
 
-  if (!p) {
-    p = {
-      id: userId,
-      fragments: 0,
-      build: 1,
-      planet_level: 1
-    };
+  planets:[
+    "Terra Prime",
+    "Nova Lux",
+    "Cryon",
+    "Aether",
+    "Vortex IX"
+  ]
 
-    await sb.from("players").insert(p);
-  }
+};
 
-  player = p;
+/* BUILD CITY */
 
-  updateHUD();
+window.buildCityUpgrade =
+  function(){
 
-  /* 🔥 СТАРТОВЫЙ ГОРОД (ВАЖНО) */
-  setTimeout(() => {
-    if (window.updateCity) {
-      updateCity(player.build);
+    game.cityLevel++;
+
+    game.fragments += 150;
+
+    game.completion += 4;
+
+    if(game.completion > 100){
+
+      game.completion = 100;
+
     }
-  }, 800);
-}
 
-/* =========================
-   HUD
-========================= */
-function updateHUD() {
+    generateCities();
 
-  if (!player) return;
+    updateUI();
+  };
 
-  document.getElementById("frag").innerText =
-    "Fragments: " + player.fragments;
+/* NEXT PLANET */
 
-  document.getElementById("planet").innerText =
-    "Planet: " + player.planet_level;
+window.nextPlanet =
+  function(){
 
-  const percent = Math.min(player.build * 10, 100);
+    game.currentPlanet++;
 
-  document.getElementById("buildText").innerText =
-    "Build: " + percent + "%";
+    if(
+      game.currentPlanet >=
+      game.planets.length
+    ){
 
-  const bar = document.getElementById("buildFill");
-  if (bar) bar.style.width = percent + "%";
-}
+      game.currentPlanet = 0;
 
-/* =========================
-   TAP
-========================= */
-let lastTap = 0;
+    }
 
-async function tap() {
-
-  if (!player) return;
-  if (Date.now() - lastTap < 400) return;
-
-  lastTap = Date.now();
-
-  player.fragments += 1;
-
-  await sb.from("players")
-    .update({ fragments: player.fragments })
-    .eq("id", userId);
-
-  updateHUD();
-}
-
-/* =========================
-   BUILD (🔥 ГЛАВНАЯ СВЯЗЬ С ГОРОДОМ)
-========================= */
-async function build() {
-
-  if (!player) return;
-
-  const cost = 10 * player.build;
-
-  if (player.fragments < cost) return;
-
-  player.fragments -= cost;
-  player.build += 1;
-
-  await sb.from("players")
-    .update({
-      fragments: player.fragments,
-      build: player.build
-    })
-    .eq("id", userId);
-
-  updateHUD();
-
-  /* 🔥 ВАЖНЕЙШАЯ СТРОКА */
-  if (window.updateCity) {
-    updateCity(player.build);
-  }
-}
-
-/* =========================
-   PLANET UPGRADE (пока без визуала)
-========================= */
-async function upgradePlanet() {
-
-  if (!player) return;
-
-  const cost = 50 * player.planet_level;
-
-  if (player.fragments < cost) return;
-
-  player.fragments -= cost;
-  player.planet_level += 1;
-
-  await sb.from("players")
-    .update({
-      fragments: player.fragments,
-      planet_level: player.planet_level
-    })
-    .eq("id", userId);
-
-  updateHUD();
-}
+    updateUI();
+  };
