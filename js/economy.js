@@ -1,104 +1,110 @@
 window.cityObjects = [];
 
 /* =========================
-   CREATE CITY ONCE
+   CREATE CITY (FIXED LOCATIONS)
 ========================= */
 
-window.generateCities =
-  function(){
+window.generateCities = function () {
 
-    cityGroup.clear();
-    cityObjects = [];
+  cityGroup.clear();
+  cityObjects = [];
 
-    const radius = 2.01;
+  const radius = 2.02;
 
-    const cityCount = 6;
+  const cityCount = 7;
 
-    for(let i=0;i<cityCount;i++){
+  for (let i = 0; i < cityCount; i++) {
 
-      const phi = Math.random() * Math.PI * 2;
-      const theta = Math.acos((Math.random()*2)-1);
+    const phi = Math.random() * Math.PI * 2;
+    const theta = Math.acos((Math.random() * 2) - 1);
 
-      const x = radius * Math.sin(theta) * Math.cos(phi);
-      const y = radius * Math.cos(theta);
-      const z = radius * Math.sin(theta) * Math.sin(phi);
+    const baseX = radius * Math.sin(theta) * Math.cos(phi);
+    const baseY = radius * Math.cos(theta);
+    const baseZ = radius * Math.sin(theta) * Math.sin(phi);
 
-      const city = {
-        baseX:x,
-        baseY:y,
-        baseZ:z,
-        buildings:[]
-      };
+    const city = {
+      baseX,
+      baseY,
+      baseZ,
+      buildings: []
+    };
 
-      const buildingsCount = 25;
+    const densityBase = 20;
 
-      for(let b=0;b<buildingsCount;b++){
+    for (let j = 0; j < densityBase; j++) {
 
-        const height = 0.05 + Math.random()*0.2;
+      const isSkyscraper = Math.random() > 0.92;
+      const isMid = Math.random() > 0.6;
 
-        const mesh = new THREE.Mesh(
+      let height, color, emissive;
 
-          new THREE.BoxGeometry(0.02, height, 0.02),
-
-          new THREE.MeshStandardMaterial({
-            color:0xdedede
-          })
-
-        );
-
-        mesh.position.set(x,y,z);
-
-        mesh.translateX((Math.random()-0.5)*0.15);
-        mesh.translateZ((Math.random()-0.5)*0.15);
-
-        mesh.userData.baseHeight = height;
-
-        cityGroup.add(mesh);
-
-        city.buildings.push(mesh);
+      if (isSkyscraper) {
+        height = 0.5 + Math.random() * 1.2;
+        color = 0x9fd3ff;
+        emissive = 0x111122;
+      } else if (isMid) {
+        height = 0.2 + Math.random() * 0.5;
+        color = 0xd9d9d9;
+        emissive = 0x0a0a0a;
+      } else {
+        height = 0.08 + Math.random() * 0.15;
+        color = 0xbfbfbf;
+        emissive = 0x000000;
       }
 
-      cityObjects.push(city);
+      const mesh = new THREE.Mesh(
+        new THREE.BoxGeometry(0.02, height, 0.02),
+        new THREE.MeshStandardMaterial({
+          color,
+          emissive,
+          emissiveIntensity: 0.6
+        })
+      );
+
+      mesh.position.set(
+        baseX + (Math.random() - 0.5) * 0.15,
+        baseY + (Math.random() - 0.5) * 0.15,
+        baseZ + (Math.random() - 0.5) * 0.15
+      );
+
+      mesh.userData.baseHeight = height;
+
+      cityGroup.add(mesh);
+      city.buildings.push(mesh);
     }
-  };
+
+    cityObjects.push(city);
+  }
+};
 
 /* =========================
-   GROW CITIES (NO TELEPORT)
+   GROW SYSTEM (REAL EVOLUTION)
 ========================= */
 
-window.growCities =
-  function(level){
+window.growCities = function (level) {
 
-    cityObjects.forEach(city=>{
+  cityObjects.forEach(city => {
 
-      city.buildings.forEach(b=>{
+    city.buildings.forEach(b => {
 
-        const target =
-          b.userData.baseHeight *
-          (1 + level * 0.15);
+      const scale = 1 + level * 0.12;
 
-        b.scale.y = target / b.userData.baseHeight;
+      b.scale.y = scale;
 
-        b.position.y =
-          city.baseY +
-          (target / 2);
-      });
+      b.position.y =
+        city.baseY +
+        (b.userData.baseHeight * scale) / 2;
 
     });
 
-  };
+  });
 
-/* =========================
-   RESET
-========================= */
+};
 
-window.resetCities =
-  function(){
-
-    generateCities();
-
-  };
+/* RESET */
+window.resetCities = function () {
+  generateCities();
+};
 
 /* INIT */
-
 generateCities();
