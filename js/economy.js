@@ -1,22 +1,7 @@
 window.cityObjects = [];
 
 /* =========================
-   SIMPLE LAND MASK (FAKE CONTINENTS)
-========================= */
-
-function isLand(x, z) {
-
-  const noise =
-    Math.sin(x * 3.2) +
-    Math.cos(z * 2.7) +
-    Math.sin((x + z) * 1.3);
-
-  return noise > 0.2;
-
-}
-
-/* =========================
-   CITY GENERATION (LAND ONLY)
+   CITY GENERATION (same logic)
 ========================= */
 
 window.generateCities = function () {
@@ -30,23 +15,12 @@ window.generateCities = function () {
 
   for (let i = 0; i < cityCount; i++) {
 
-    let baseX, baseY, baseZ;
+    const phi = Math.random() * Math.PI * 2;
+    const theta = Math.acos((Math.random() * 2) - 1);
 
-    let attempts = 0;
-
-    /* ищем только сушу */
-    do {
-
-      const phi = Math.random() * Math.PI * 2;
-      const theta = Math.acos((Math.random() * 2) - 1);
-
-      baseX = radius * Math.sin(theta) * Math.cos(phi);
-      baseY = radius * Math.cos(theta);
-      baseZ = radius * Math.sin(theta) * Math.sin(phi);
-
-      attempts++;
-
-    } while (!isLand(baseX, baseZ) && attempts < 10);
+    const baseX = radius * Math.sin(theta) * Math.cos(phi);
+    const baseY = radius * Math.cos(theta);
+    const baseZ = radius * Math.sin(theta) * Math.sin(phi);
 
     const city = {
       baseX,
@@ -55,8 +29,7 @@ window.generateCities = function () {
       buildings: []
     };
 
-    /* старт маленький город */
-    const baseBuildings = 10;
+    const baseBuildings = 12; /* чуть больше сразу */
 
     for (let j = 0; j < baseBuildings; j++) {
 
@@ -72,11 +45,9 @@ window.generateCities = function () {
       );
 
       mesh.position.set(
-
         baseX + (Math.random() - 0.5) * 0.12,
         baseY + (Math.random() - 0.5) * 0.12,
         baseZ + (Math.random() - 0.5) * 0.12
-
       );
 
       mesh.userData.baseHeight = 0.05;
@@ -91,7 +62,7 @@ window.generateCities = function () {
 };
 
 /* =========================
-   GROWTH SYSTEM (REAL EVOLUTION)
+   FAST GROWTH
 ========================= */
 
 window.growCities = function (level) {
@@ -100,38 +71,21 @@ window.growCities = function (level) {
 
     city.buildings.forEach(b => {
 
-      /* рост начинается с плотности, потом высота */
+      const scale = 1 + level * 0.25; /* ⚡ было 0.08 → теперь x3 */
 
-      const heightMultiplier =
-        1 + (level * 0.08);
-
-      const targetHeight =
-        b.userData.baseHeight * heightMultiplier;
-
-      b.scale.y = targetHeight / b.userData.baseHeight;
-
-      /* позиция вверх */
+      b.scale.y = scale;
 
       b.position.y =
         city.baseY +
-        (targetHeight / 2);
+        (b.userData.baseHeight * scale) / 2;
 
-      /* на высоких уровнях появляются светящиеся окна */
-
-      if (level > 5) {
-
+      if (level > 2) {
         b.material.emissive.setHex(0x222233);
-
-        b.material.emissiveIntensity = 0.4;
-
+        b.material.emissiveIntensity = 0.6;
       }
 
-      /* skyscrapers только на поздней игре */
-
-      if (level > 10 && Math.random() > 0.97) {
-
-        b.scale.y *= 2.5;
-
+      if (level > 4 && Math.random() > 0.95) {
+        b.scale.y *= 3; /* быстрые skyscrapers */
       }
 
     });
@@ -140,10 +94,7 @@ window.growCities = function (level) {
 
 };
 
-/* =========================
-   RESET
-========================= */
-
+/* RESET */
 window.resetCities = function () {
   generateCities();
 };
