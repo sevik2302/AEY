@@ -1,6 +1,10 @@
 window.APP = {};
 
+/* SCENE */
+
 APP.scene = new THREE.Scene();
+
+/* CAMERA */
 
 APP.camera = new THREE.PerspectiveCamera(
     45,
@@ -11,55 +15,90 @@ APP.camera = new THREE.PerspectiveCamera(
 
 APP.camera.position.set(0,0,8);
 
+/* RENDERER */
+
 APP.renderer = new THREE.WebGLRenderer({
     antialias:true,
     alpha:true
 });
 
-APP.renderer.setSize(innerWidth,innerHeight);
 APP.renderer.setPixelRatio(devicePixelRatio);
 
-document.body.appendChild(APP.renderer.domElement);
+APP.renderer.setSize(
+    innerWidth,
+    innerHeight
+);
 
-/* LIGHTING */
+document.body.appendChild(
+    APP.renderer.domElement
+);
 
-const ambient = new THREE.AmbientLight(0xffffff,1.3);
+/* LIGHT */
+
+const ambient =
+    new THREE.AmbientLight(
+        0xffffff,
+        1.2
+    );
+
 APP.scene.add(ambient);
 
-const sun = new THREE.DirectionalLight(0xffffff,2.2);
-sun.position.set(5,4,5);
+const sun =
+    new THREE.DirectionalLight(
+        0xffffff,
+        2
+    );
+
+sun.position.set(5,5,5);
 
 APP.scene.add(sun);
 
 /* STARS */
 
-const starsGeo = new THREE.BufferGeometry();
+const starsGeo =
+    new THREE.BufferGeometry();
 
-const stars = [];
+const starPos = [];
 
 for(let i=0;i<5000;i++){
 
-    stars.push((Math.random()-0.5)*400);
-    stars.push((Math.random()-0.5)*400);
-    stars.push((Math.random()-0.5)*400);
+    starPos.push(
+        (Math.random()-0.5)*400
+    );
+
+    starPos.push(
+        (Math.random()-0.5)*400
+    );
+
+    starPos.push(
+        (Math.random()-0.5)*400
+    );
 
 }
 
 starsGeo.setAttribute(
     "position",
-    new THREE.Float32BufferAttribute(stars,3)
+    new THREE.Float32BufferAttribute(
+        starPos,
+        3
+    )
 );
 
-const starsMat = new THREE.PointsMaterial({
-    color:0xffffff,
-    size:0.03
-});
+const stars =
+    new THREE.Points(
 
-const starField = new THREE.Points(starsGeo,starsMat);
+        starsGeo,
 
-APP.scene.add(starField);
+        new THREE.PointsMaterial({
+            color:0xffffff,
+            size:0.03
+        })
 
-/* ANIMATION */
+    );
+
+APP.scene.add(stars);
+
+/* LOOP */
 
 function animate(){
 
@@ -70,14 +109,17 @@ function animate(){
     }
 
     if(APP.clouds){
-        APP.clouds.rotation.y += 0.0016;
+        APP.clouds.rotation.y += 0.0015;
     }
 
     if(APP.cityGroup){
         APP.cityGroup.rotation.y += 0.0004;
     }
 
-    APP.renderer.render(APP.scene,APP.camera);
+    APP.renderer.render(
+        APP.scene,
+        APP.camera
+    );
 }
 
 animate();
@@ -86,9 +128,14 @@ animate();
 
 addEventListener("resize",()=>{
 
-    APP.camera.aspect = innerWidth/innerHeight;
+    APP.camera.aspect =
+        innerWidth/innerHeight;
+
     APP.camera.updateProjectionMatrix();
 
-    APP.renderer.setSize(innerWidth,innerHeight);
+    APP.renderer.setSize(
+        innerWidth,
+        innerHeight
+    );
 
 });
