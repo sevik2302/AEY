@@ -5,7 +5,7 @@ APP.scene.add(APP.planetGroup);
    WATER PLANET
 ========================= */
 const water = new THREE.Mesh(
-    new THREE.SphereGeometry(1.75, 96, 96),
+    new THREE.SphereGeometry(1.75, 128, 128),
     new THREE.MeshToonMaterial({
         color: 0x1f6fff
     })
@@ -14,7 +14,7 @@ const water = new THREE.Mesh(
 APP.planetGroup.add(water);
 
 /* =========================
-   FLAT CONTINENTS (CARTOON MAP STYLE)
+   CONTINENT BASE SHAPE (REAL FIX)
 ========================= */
 
 window.LAND_POINTS = [];
@@ -23,55 +23,63 @@ const landMaterial = new THREE.MeshToonMaterial({
     color: 0x35e06f
 });
 
+/* создаём "континенты" как группы мягких пятен, но БЕЗ lookAt */
 const CONTINENTS = [
-    { dir: new THREE.Vector3( 0.9,  0.2,  0.3), size: 0.8 },
-    { dir: new THREE.Vector3(-0.8,  0.1,  0.4), size: 0.85 },
-    { dir: new THREE.Vector3( 0.2,  0.8, -0.3), size: 0.75 },
-    { dir: new THREE.Vector3(-0.3, -0.7,  0.5), size: 0.9 },
-    { dir: new THREE.Vector3( 0.4, -0.2, -0.9), size: 0.7 }
+    new THREE.Vector3( 0.9,  0.2,  0.3),
+    new THREE.Vector3(-0.8,  0.1,  0.4),
+    new THREE.Vector3( 0.2,  0.8, -0.3),
+    new THREE.Vector3(-0.3, -0.7,  0.5),
+    new THREE.Vector3( 0.4, -0.2, -0.9)
 ];
 
-CONTINENTS.forEach(c => {
+CONTINENTS.forEach(center => {
 
-    const base = c.dir.clone().normalize();
-    const continent = new THREE.Group();
+    const baseDir = center.clone().normalize();
 
-    for (let i = 0; i < 12; i++) {
+    const group = new THREE.Group();
 
-        const jitter = new THREE.Vector3(
-            (Math.random() - 0.5) * 0.12,
-            (Math.random() - 0.5) * 0.03,
-            (Math.random() - 0.5) * 0.12
+    for (let i = 0; i < 18; i++) {
+
+        const spread = new THREE.Vector3(
+            (Math.random() - 0.5) * 0.25,
+            (Math.random() - 0.5) * 0.25,
+            (Math.random() - 0.5) * 0.25
         );
 
-        const dir = base.clone().add(jitter).normalize();
+        const dir = baseDir.clone().add(spread).normalize();
+
+        const radius = 1.73;
 
         const land = new THREE.Mesh(
             new THREE.SphereGeometry(
-                c.size * (0.18 + Math.random() * 0.15),
-                22,
-                22
+                0.18 + Math.random() * 0.12,
+                24,
+                24
             ),
             landMaterial
         );
 
-        const radius = 1.73;
+        const pos = dir.multiplyScalar(radius);
 
-        land.position.copy(dir.multiplyScalar(radius));
+        land.position.copy(pos);
 
-        /* ПЛОСКИЕ МАТЕРИКИ */
-        land.scale.set(
-            2.0 + Math.random() * 1.2,
-            0.10 + Math.random() * 0.06,
-            2.0 + Math.random() * 1.2
+        /* 🔥 ВАЖНО: НЕ lookAt — убираем вертикальные “диски” */
+        land.quaternion.setFromUnitVectors(
+            new THREE.Vector3(0,1,0),
+            dir
         );
 
-        land.lookAt(0, 0, 0);
+        /* 🔥 МЯГКАЯ ВЫПУКЛОСТЬ (НЕ ВЕРТИКАЛЬНЫЕ ПЛАСТЫ) */
+        land.scale.set(
+            1.4 + Math.random() * 0.6,
+            0.2 + Math.random() * 0.1,
+            1.4 + Math.random() * 0.6
+        );
 
-        continent.add(land);
+        group.add(land);
 
-        LAND_POINTS.push(land.position.clone().normalize());
+        LAND_POINTS.push(dir.clone());
     }
 
-    APP.planetGroup.add(continent);
+    APP.planetGroup.add(group);
 });
