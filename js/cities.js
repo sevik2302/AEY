@@ -3,78 +3,127 @@ APP.cityGroup =
 
 APP.scene.add(APP.cityGroup);
 
+const PLANET_RADIUS = 1.7;
+
+/* =========================
+   CHECK LAND
+========================= */
+
+function isLand(normal){
+
+    for(const p of LAND_POINTS){
+
+        const dx = normal.x - p.x;
+        const dy = normal.y - p.y;
+        const dz = normal.z - p.z;
+
+        const dist =
+            Math.sqrt(
+                dx*dx +
+                dy*dy +
+                dz*dz
+            );
+
+        if(dist < p.radius*0.82){
+
+            return true;
+
+        }
+
+    }
+
+    return false;
+}
+
+/* =========================
+   SPAWN CITIES
+========================= */
+
 window.spawnCities =
 function(level=1){
 
     APP.cityGroup.clear();
 
-    /* одинаковый спавн */
+    const cityCount =
+        120 + level*12;
 
-    CONTINENTS.forEach(continent=>{
+    for(let i=0;i<cityCount;i++){
 
-        const center =
-            continent.position.clone();
+        let normal;
 
-        const normal =
-            center.clone().normalize();
+        /* FIND LAND */
 
-        const count =
-            8 + level;
+        for(let t=0;t<100;t++){
 
-        for(let i=0;i<count;i++){
+            const phi =
+                Math.random()*Math.PI*2;
 
-            const h =
-                0.08 +
-                level*0.01 +
-                Math.random()*0.12;
+            const theta =
+                Math.random()*Math.PI;
 
-            const b =
-                new THREE.Mesh(
-
-                    new THREE.BoxGeometry(
-                        0.05,
-                        h,
-                        0.05
-                    ),
-
-                    new THREE.MeshToonMaterial({
-                        color:0xffffff
-                    })
-
-                );
-
-            const offset =
+            normal =
                 new THREE.Vector3(
 
-                    (Math.random()-0.5)*0.18,
+                    Math.sin(theta)*Math.cos(phi),
 
-                    (Math.random()-0.5)*0.18,
+                    Math.cos(theta),
 
-                    (Math.random()-0.5)*0.18
+                    Math.sin(theta)*Math.sin(phi)
 
                 );
 
-            const pos =
-                center.clone()
-                .add(offset)
-                .normalize()
-                .multiplyScalar(2.34);
+            if(isLand(normal)){
+                break;
+            }
 
-            b.position.copy(
-                pos.clone().add(
-                    normal.clone().multiplyScalar(h/2)
-                )
-            );
-
-            b.quaternion.setFromUnitVectors(
-                new THREE.Vector3(0,1,0),
-                normal
-            );
-
-            APP.cityGroup.add(b);
         }
 
-    });
+        const height =
+            0.05 +
+            Math.random()*0.14 +
+            level*0.004;
+
+        const building =
+            new THREE.Mesh(
+
+                new THREE.BoxGeometry(
+                    0.03,
+                    height,
+                    0.03
+                ),
+
+                new THREE.MeshToonMaterial({
+
+                    color:0xffffff
+
+                })
+
+            );
+
+        /* POSITION */
+
+        const pos =
+            normal.clone()
+            .multiplyScalar(
+                PLANET_RADIUS +
+                height/2
+            );
+
+        building.position.copy(pos);
+
+        /* ROTATION */
+
+        building.quaternion.setFromUnitVectors(
+
+            new THREE.Vector3(0,1,0),
+
+            normal
+
+        );
+
+        APP.cityGroup.add(building);
+
+    }
 
 }
 
