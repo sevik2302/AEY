@@ -13,6 +13,16 @@ window.sb =
 
     );
 
+/* TABLES:
+
+   players
+
+   market
+
+   events
+
+*/
+
 window.player = {
 
     fragments:0,
@@ -83,4 +93,22 @@ async function(){
 
         });
 
-}
+};
+
+window.pushEvent =
+
+async function(type,payload={}){
+
+    await sb
+
+        .from("events")
+
+        .insert({
+
+            type,
+
+            payload
+
+        });
+
+};
