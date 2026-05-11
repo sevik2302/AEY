@@ -3,42 +3,30 @@ window.cityObjects = [];
 const RADIUS = 2.02;
 
 /* =========================
-   REAL CONTINENT SYSTEM (STABLE EARTH-LIKE BLOBS)
+   LAND DETECTION FROM TEXTURE IDEA
 ========================= */
 
 /*
-   Это НЕ шум.
-   Это фиксированные "континентальные массы",
-   которые дают стабильный результат всегда.
+  ВАЖНО:
+  мы НЕ читаем пиксели (это сложно в real-time),
+  а используем приближение:
+  - города только в "умеренных широтах"
+  - чтобы не спавнились в океанах
 */
 
-const landBlobs = [
+function isLandLike(pos) {
 
-  new THREE.Vector3( 0.7,  0.3,  0.2).normalize(),
-  new THREE.Vector3(-0.6, -0.2,  0.4).normalize(),
-  new THREE.Vector3( 0.1,  0.8, -0.3).normalize(),
-  new THREE.Vector3(-0.2, -0.7, -0.6).normalize()
+  const n = pos.clone().normalize();
 
-];
+  const lat = n.y;
 
-function isLand(vec) {
-
-  const n = vec.clone().normalize();
-
-  for (let b of landBlobs) {
-
-    const d = n.dot(b); // similarity on sphere
-
-    if (d > 0.65) return true;
-
-  }
-
-  return false;
+  /* исключаем полюса + океанические зоны */
+  return Math.abs(lat) < 0.85;
 
 }
 
 /* =========================
-   SAFE CITY GENERATION
+   CITY GENERATION
 ========================= */
 
 window.generateCities = function () {
@@ -46,25 +34,24 @@ window.generateCities = function () {
   cityGroup.clear();
   cityObjects = [];
 
-  const cityCount = 8;
+  const cityCount = 10;
 
   for (let i = 0; i < cityCount; i++) {
 
-    let base = new THREE.Vector3();
+    let base;
 
-    /* ищем только сушу */
-    for (let tries = 0; tries < 100; tries++) {
+    for (let tries = 0; tries < 50; tries++) {
 
       const phi = Math.random() * Math.PI * 2;
       const theta = Math.acos((Math.random() * 2) - 1);
 
-      base.set(
+      base = new THREE.Vector3(
         Math.sin(theta) * Math.cos(phi),
         Math.cos(theta),
         Math.sin(theta) * Math.sin(phi)
       ).multiplyScalar(RADIUS);
 
-      if (isLand(base)) break;
+      if (isLandLike(base)) break;
 
     }
 
@@ -75,44 +62,34 @@ window.generateCities = function () {
       buildings: []
     };
 
-    const density = 45;
+    const density = 60;
 
     for (let j = 0; j < density; j++) {
 
       const height =
-        0.03 + Math.pow(Math.random(), 2) * 1.0;
-
-      const isSkyscraper = Math.random() > 0.94;
+        0.02 + Math.pow(Math.random(), 2) * 1.2;
 
       const mesh = new THREE.Mesh(
 
         new THREE.BoxGeometry(0.02, height, 0.02),
 
         new THREE.MeshStandardMaterial({
-          color: isSkyscraper ? 0xaadfff : 0xdcdcdc,
+          color: 0xdcdcdc,
           emissive: 0x000000
         })
 
       );
 
-      /* =========================
-         SPHERE SURFACE POSITION
-      ========================= */
-
-      const tangent = new THREE.Vector3(
-        Math.random() - 0.5,
-        Math.random() - 0.5,
-        Math.random() - 0.5
-      ).normalize().multiplyScalar(0.1);
+      const offset = new THREE.Vector3(
+        (Math.random() - 0.5) * 0.12,
+        (Math.random() - 0.5) * 0.12,
+        (Math.random() - 0.5) * 0.12
+      );
 
       const pos = base.clone()
-        .add(tangent)
+        .add(offset)
         .normalize()
         .multiplyScalar(RADIUS);
-
-      /* =========================
-         FIX: PROPER VERTICAL ALIGNMENT
-      ========================= */
 
       mesh.position.copy(
         pos.clone().add(
@@ -120,19 +97,11 @@ window.generateCities = function () {
         )
       );
 
-      /*
-        CRITICAL FIX:
-        убираем lookAt (он ломал здания)
-        используем quaternion alignment
-      */
-
-      const up = normal.clone();
-      const axis = new THREE.Vector3(0, 1, 0);
-
-      const quat = new THREE.Quaternion()
-        .setFromUnitVectors(axis, up);
-
-      mesh.quaternion.copy(quat);
+      /* правильная ориентация */
+      mesh.quaternion.setFromUnitVectors(
+        new THREE.Vector3(0,1,0),
+        normal
+      );
 
       mesh.userData.normal = normal;
 
@@ -146,7 +115,7 @@ window.generateCities = function () {
 };
 
 /* =========================
-   GROW SYSTEM (CLEAN)
+   GROW SYSTEM
 ========================= */
 
 window.growCities = function (level) {
@@ -155,17 +124,17 @@ window.growCities = function (level) {
 
     city.buildings.forEach(b => {
 
-      const scale = 1 + level * 0.22;
+      const scale = 1 + level * 0.25;
 
       b.scale.y = scale;
 
       if (level > 3) {
         b.material.emissive.setHex(0x111133);
-        b.material.emissiveIntensity = 0.6;
+        b.material.emissiveIntensity = 0.5;
       }
 
-      if (level > 6 && Math.random() > 0.97) {
-        b.scale.y *= 2.5;
+      if (level > 7 && Math.random() > 0.97) {
+        b.scale.y *= 3;
       }
 
     });
@@ -174,12 +143,5 @@ window.growCities = function (level) {
 
 };
 
-/* RESET */
-window.resetCities = function () {
-  generateCities();
-};
-
-/* INIT SAFE */
-setTimeout(() => {
-  generateCities();
-}, 200);
+/* INIT */
+setTimeout(() => generateCities(), 300);
