@@ -2,116 +2,90 @@ window.fragments = 0;
 window.level = 1;
 window.population = 120000;
 window.income = 1;
-window.currentPlanet = 0;
+
+window.player = {
+    fragments:0,
+    level:1,
+    population:120000
+};
+
+/* =========================
+   DISTRICTS
+========================= */
+
+window.CITY_STATE = {
+
+    village:false,
+    town:false,
+    city:false,
+    megacity:false,
+    cyber:false
+
+};
 
 /* =========================
    PLANETS
 ========================= */
 
-const PLANETS = [
+window.PLANETS = [
 
     {
         name:"Earth",
-        ocean:0x0055ff,
-        land:0xa7ff2f,
-        sky:0x8ed8ff
+        ocean:"#0055ff",
+        land:"#a7ff2f",
+        glow:"#8ed8ff"
     },
 
     {
         name:"Mars",
-        ocean:0x8f2d16,
-        land:0xff7b47,
-        sky:0xffc19a
+        ocean:"#8f2d16",
+        land:"#ff7b47",
+        glow:"#ffb58c"
     },
 
     {
         name:"Ice",
-        ocean:0x9ee6ff,
-        land:0xffffff,
-        sky:0xdff6ff
+        ocean:"#8ce7ff",
+        land:"#ffffff",
+        glow:"#dff8ff"
     },
 
     {
         name:"Cyber",
-        ocean:0x111133,
-        land:0x00ffcc,
-        sky:0x001122
+        ocean:"#091120",
+        land:"#00ffc3",
+        glow:"#00d0ff"
     },
 
     {
         name:"Lava",
-        ocean:0x2b0000,
-        land:0xff4400,
-        sky:0xff9955
+        ocean:"#2a0000",
+        land:"#ff4400",
+        glow:"#ff9a44"
     }
 
 ];
+
+window.currentPlanet = 0;
 
 /* =========================
    UI
 ========================= */
 
-const fragmentsValue =
+const fragmentsEl =
     document.getElementById(
         "fragmentsValue"
     );
 
-const levelValue =
+const levelEl =
     document.getElementById(
         "levelValue"
     );
 
-const populationValue =
+const populationEl =
     document.getElementById(
         "populationValue"
     );
-
-/* =========================
-   NUMBER ANIMATION
-========================= */
-
-function animateNumber(el,to){
-
-    const start =
-        Number(
-            el.innerText.replace(/\D/g,"")
-        ) || 0;
-
-    const duration = 300;
-
-    const startTime =
-        performance.now();
-
-    function frame(now){
-
-        const p =
-            Math.min(
-                1,
-                (now-startTime)/duration
-            );
-
-        const val =
-            Math.floor(
-                start +
-                (to-start)*p
-            );
-
-        el.innerText =
-            val.toLocaleString();
-
-        if(p < 1){
-
-            requestAnimationFrame(
-                frame
-            );
-
-        }
-
-    }
-
-    requestAnimationFrame(frame);
-
-}
 
 /* =========================
    UPDATE UI
@@ -119,15 +93,15 @@ function animateNumber(el,to){
 
 function updateUI(){
 
-    animateNumber(
-        fragmentsValue,
-        fragments
-    );
+    fragmentsEl.innerText =
+        Math.floor(
+            fragments
+        ).toLocaleString();
 
-    levelValue.innerText =
+    levelEl.innerText =
         level;
 
-    populationValue.innerText =
+    populationEl.innerText =
         Math.floor(
             population/1000
         ) + "K";
@@ -135,47 +109,38 @@ function updateUI(){
 }
 
 /* =========================
-   INIT
+   FLOAT TEXT
 ========================= */
 
-setTimeout(async()=>{
+window.floatText =
+function(text,x,y){
 
-    await loadPlayer();
+    const el =
+        document.createElement("div");
 
-    fragments =
-        player.fragments;
+    el.className =
+        "floatText";
 
-    level =
-        player.level;
+    el.innerText =
+        text;
 
-    population =
-        player.population;
+    el.style.left =
+        x + "px";
 
-    spawnCities(level);
+    el.style.top =
+        y + "px";
 
-    updateUI();
+    document.body.appendChild(
+        el
+    );
 
-},500);
+    setTimeout(()=>{
 
-/* =========================
-   PASSIVE INCOME
-========================= */
+        el.remove();
 
-setInterval(()=>{
+    },1000);
 
-    const gain =
-        Math.floor(
-            level * income
-        );
-
-    fragments += gain;
-
-    player.fragments =
-        fragments;
-
-    updateUI();
-
-},1000);
+};
 
 /* =========================
    HAPTIC
@@ -189,21 +154,9 @@ function haptic(type="light"){
         Telegram.WebApp.HapticFeedback
     ){
 
-        if(type==="light"){
-
-            Telegram.WebApp
-            .HapticFeedback
-            .impactOccurred("light");
-
-        }
-
-        if(type==="medium"){
-
-            Telegram.WebApp
-            .HapticFeedback
-            .impactOccurred("medium");
-
-        }
+        Telegram.WebApp
+        .HapticFeedback
+        .impactOccurred(type);
 
     }
 
@@ -213,7 +166,7 @@ function haptic(type="light"){
    SOUND
 ========================= */
 
-function sound(freq=440,duration=0.06){
+function sound(freq=440,duration=0.05){
 
     const ctx =
         new AudioContext();
@@ -247,6 +200,21 @@ function sound(freq=440,duration=0.06){
 }
 
 /* =========================
+   PASSIVE INCOME
+========================= */
+
+setInterval(()=>{
+
+    fragments += income;
+
+    player.fragments =
+        fragments;
+
+    updateUI();
+
+},1000);
+
+/* =========================
    COLLECT
 ========================= */
 
@@ -254,22 +222,19 @@ document.getElementById(
     "collectBtn"
 ).onclick = (e)=>{
 
-    fragments += 1;
-
-    player.fragments =
-        fragments;
+    fragments += 1 + level*0.3;
 
     updateUI();
-
-    floatText(
-        "+1",
-        e.clientX,
-        e.clientY
-    );
 
     haptic("light");
 
     sound(700,0.04);
+
+    floatText(
+        "+FRAG",
+        e.clientX,
+        e.clientY
+    );
 
     APP.camera.position.z =
         8.5;
@@ -303,31 +268,26 @@ document.getElementById(
         population +=
             18000 * level;
 
-        income += 0.2;
-
-        player.fragments =
-            fragments;
+        income += 0.4;
 
         player.level =
             level;
 
+        player.fragments =
+            fragments;
+
         player.population =
             population;
 
+        unlockFeatures();
+
         spawnCities(level);
-
-        savePlayer();
-
-        pushEvent(
-            "upgrade",
-            { level }
-        );
 
         updateUI();
 
         haptic("medium");
 
-        sound(240,0.12);
+        sound(220,0.12);
 
         APP.camera.position.z =
             8.1;
@@ -337,24 +297,65 @@ document.getElementById(
             APP.camera.position.z =
                 8.8;
 
-        },160);
-
-        /*
-        new planet every 10 lvls
-        */
-
-        if(level % 10 === 0){
-
-            nextPlanet();
-
-        }
+        },140);
 
     }
 
 };
 
 /* =========================
-   PLANET SWITCH
+   UNLOCKS
+========================= */
+
+function unlockFeatures(){
+
+    if(level >= 3){
+
+        CITY_STATE.village =
+            true;
+
+    }
+
+    if(level >= 8){
+
+        CITY_STATE.town =
+            true;
+
+    }
+
+    if(level >= 15){
+
+        CITY_STATE.city =
+            true;
+
+    }
+
+    if(level >= 25){
+
+        CITY_STATE.megacity =
+            true;
+
+    }
+
+    if(level >= 40){
+
+        CITY_STATE.cyber =
+            true;
+
+    }
+
+    /* planet switch */
+
+    if(level % 10 === 0){
+
+        nextPlanet();
+
+    }
+
+}
+
+/* =========================
+   NEXT PLANET
 ========================= */
 
 function nextPlanet(){
@@ -370,21 +371,6 @@ function nextPlanet(){
 
     }
 
-    const p =
-        PLANETS[currentPlanet];
-
-    APP.planet.material.color =
-        new THREE.Color(
-            p.ocean
-        );
-
-    document.body.style.background =
-        `linear-gradient(
-            to bottom,
-            #ffffff,
-            #${p.sky.toString(16)}
-        )`;
-
 }
 
 /* =========================
@@ -396,17 +382,17 @@ setInterval(()=>{
     const events = [
 
         {
-            type:"crypto boom",
+            name:"crypto boom",
             bonus:5
         },
 
         {
-            type:"solar storm",
+            name:"solar storm",
             bonus:-2
         },
 
         {
-            type:"meteor shower",
+            name:"meteor shower",
             bonus:3
         }
 
@@ -423,79 +409,18 @@ setInterval(()=>{
     income +=
         event.bonus * 0.1;
 
-    pushEvent(
-        event.type,
-        event
-    );
-
 },25000);
 
 /* =========================
-   DRONES
+   DAY/NIGHT
 ========================= */
 
-APP.drones = [];
+window.DAY_TIME = 0;
 
-for(let i=0;i<4;i++){
+setInterval(()=>{
 
-    const drone =
-        new THREE.Mesh(
+    DAY_TIME += 0.003;
 
-            new THREE.SphereGeometry(
-                0.03,
-                8,
-                8
-            ),
+},16);
 
-            new THREE.MeshBasicMaterial({
-
-                color:0xffffff
-
-            })
-
-        );
-
-    drone.angle =
-        Math.random()*
-        Math.PI*2;
-
-    drone.radius =
-        2.4 +
-        Math.random()*0.4;
-
-    APP.scene.add(drone);
-
-    APP.drones.push(drone);
-
-}
-
-function animateDrones(){
-
-    requestAnimationFrame(
-        animateDrones
-    );
-
-    APP.drones.forEach((d,i)=>{
-
-        d.angle +=
-            0.01 +
-            i*0.002;
-
-        d.position.x =
-            Math.cos(d.angle)*
-            d.radius;
-
-        d.position.z =
-            Math.sin(d.angle)*
-            d.radius;
-
-        d.position.y =
-            Math.sin(
-                d.angle*2
-            )*0.3;
-
-    });
-
-}
-
-animateDrones();
+updateUI();
