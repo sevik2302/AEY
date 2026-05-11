@@ -1,3 +1,4 @@
+
 window.floatText =
 function(text,x,y){
 
