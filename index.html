@@ -2,36 +2,35 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>AEY GALAXY</title>
+<title>AEY GALAXY FINAL STABLE</title>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/postprocessing/EffectComposer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/postprocessing/RenderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+
+<script defer src="js/renderer.js"></script>
+<script defer src="js/planets.js"></script>
+<script defer src="js/economy.js"></script>
+<script defer src="js/game.js"></script>
 
 <style>
-body{
-  margin:0;
-  background:black;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-  font-family:Arial;
-}
-
-a{
-  color:white;
-  text-decoration:none;
-  font-size:28px;
-  padding:20px 40px;
-  border-radius:20px;
-  background:#111;
-  border:1px solid rgba(255,255,255,0.1);
-}
+body{margin:0;overflow:hidden;background:black;font-family:Arial}
+#ui{position:fixed;top:20px;left:20px;color:white;z-index:10}
+button{padding:12px 18px;margin:5px;border-radius:10px;border:none;background:#222;color:white}
 </style>
+
 </head>
 
 <body>
 
-<a href="game.html">
-ENTER AEY GALAXY
-</a>
+<div id="ui">
+  <button onclick="tap()">TAP</button>
+  <button onclick="build()">BUILD</button>
+  <button onclick="nextPlanet()">NEXT PLANET</button>
+  <div id="info"></div>
+</div>
 
 </body>
 </html>
