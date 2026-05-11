@@ -1,66 +1,94 @@
-window.AEY = {};
+window.APP = {};
 
-/* SCENE */
-AEY.scene = new THREE.Scene();
+APP.scene = new THREE.Scene();
 
-/* CAMERA */
-AEY.camera = new THREE.PerspectiveCamera(
-  50,
-  innerWidth / innerHeight,
-  0.1,
-  2000
+APP.camera = new THREE.PerspectiveCamera(
+    45,
+    innerWidth/innerHeight,
+    0.1,
+    1000
 );
 
-AEY.camera.position.set(0,2,7);
+APP.camera.position.set(0,0,8);
 
-/* RENDERER */
-AEY.renderer = new THREE.WebGLRenderer({antialias:true});
-AEY.renderer.setSize(innerWidth,innerHeight);
-document.body.appendChild(AEY.renderer.domElement);
+APP.renderer = new THREE.WebGLRenderer({
+    antialias:true,
+    alpha:true
+});
 
-/* LIGHT */
-const sun = new THREE.DirectionalLight(0xffffff,2);
-sun.position.set(5,5,5);
-AEY.scene.add(sun);
+APP.renderer.setSize(innerWidth,innerHeight);
+APP.renderer.setPixelRatio(devicePixelRatio);
 
-AEY.scene.add(new THREE.AmbientLight(0x223344,0.7));
+document.body.appendChild(APP.renderer.domElement);
 
-/* STARFIELD */
-const geo = new THREE.BufferGeometry();
-const pos = [];
+/* LIGHTING */
 
-for(let i=0;i<9000;i++){
-  pos.push((Math.random()-0.5)*700);
-  pos.push((Math.random()-0.5)*700);
-  pos.push((Math.random()-0.5)*700);
+const ambient = new THREE.AmbientLight(0xffffff,1.3);
+APP.scene.add(ambient);
+
+const sun = new THREE.DirectionalLight(0xffffff,2.2);
+sun.position.set(5,4,5);
+
+APP.scene.add(sun);
+
+/* STARS */
+
+const starsGeo = new THREE.BufferGeometry();
+
+const stars = [];
+
+for(let i=0;i<5000;i++){
+
+    stars.push((Math.random()-0.5)*400);
+    stars.push((Math.random()-0.5)*400);
+    stars.push((Math.random()-0.5)*400);
+
 }
 
-geo.setAttribute("position",new THREE.Float32BufferAttribute(pos,3));
-
-const stars = new THREE.Points(
-  geo,
-  new THREE.PointsMaterial({color:0xffffff,size:0.02})
+starsGeo.setAttribute(
+    "position",
+    new THREE.Float32BufferAttribute(stars,3)
 );
 
-AEY.scene.add(stars);
+const starsMat = new THREE.PointsMaterial({
+    color:0xffffff,
+    size:0.03
+});
 
-/* LOOP */
+const starField = new THREE.Points(starsGeo,starsMat);
+
+APP.scene.add(starField);
+
+/* ANIMATION */
+
 function animate(){
 
-  requestAnimationFrame(animate);
+    requestAnimationFrame(animate);
 
-  if(AEY.planet) AEY.planet.rotation.y += 0.001;
-  if(AEY.clouds) AEY.clouds.rotation.y += 0.0013;
-  if(AEY.cities) AEY.cities.rotation.y += 0.0004;
+    if(APP.planet){
+        APP.planet.rotation.y += 0.0012;
+    }
 
-  AEY.renderer.render(AEY.scene,AEY.camera);
+    if(APP.clouds){
+        APP.clouds.rotation.y += 0.0016;
+    }
+
+    if(APP.cityGroup){
+        APP.cityGroup.rotation.y += 0.0004;
+    }
+
+    APP.renderer.render(APP.scene,APP.camera);
 }
 
 animate();
 
 /* RESIZE */
-window.addEventListener("resize",()=>{
-  AEY.camera.aspect = innerWidth/innerHeight;
-  AEY.camera.updateProjectionMatrix();
-  AEY.renderer.setSize(innerWidth,innerHeight);
+
+addEventListener("resize",()=>{
+
+    APP.camera.aspect = innerWidth/innerHeight;
+    APP.camera.updateProjectionMatrix();
+
+    APP.renderer.setSize(innerWidth,innerHeight);
+
 });
