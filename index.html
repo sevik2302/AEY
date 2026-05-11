@@ -1,12 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport"
+
+<meta
+name="viewport"
 content="width=device-width,initial-scale=1.0,user-scalable=no">
 
-<title>AEY Planet Tycoon</title>
+<title>AEY Planet</title>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 
@@ -23,67 +25,59 @@ content="width=device-width,initial-scale=1.0,user-scalable=no">
 
 body{
     overflow:hidden;
+    background:#8ed8ff;
     font-family:Inter,Arial,sans-serif;
-    background:#060816;
-    color:white;
 }
 
 /* ===== TOP ===== */
 
-#topbar{
+#top{
+
     position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    padding:18px;
+
+    top:18px;
+
+    left:18px;
+
     z-index:20;
-}
 
-.panel{
+    background:white;
 
-    backdrop-filter:blur(18px);
+    border-radius:28px;
 
-    background:rgba(255,255,255,0.08);
-
-    border:1px solid rgba(255,255,255,0.08);
-
-    border-radius:26px;
-
-    padding:18px;
-
-    width:260px;
+    padding:18px 22px;
 
     box-shadow:
-        0 12px 40px rgba(0,0,0,0.35),
-        inset 0 1px rgba(255,255,255,0.08);
+        0 10px 30px rgba(0,0,0,0.12);
 
 }
 
 #title{
     font-size:24px;
     font-weight:800;
+    color:#2a2a2a;
 }
 
 #stats{
-    margin-top:10px;
-    font-size:14px;
+    margin-top:8px;
     line-height:1.7;
-    opacity:0.9;
+    color:#555;
+    font-size:14px;
 }
 
-/* ===== BOTTOM BUTTONS ===== */
+/* ===== BUTTONS ===== */
 
-#bottomUI{
+#bottom{
 
     position:fixed;
 
-    bottom:26px;
+    bottom:22px;
 
     left:50%;
 
     transform:translateX(-50%);
 
-    width:94%;
+    width:92%;
 
     display:flex;
 
@@ -93,13 +87,13 @@ body{
 
 }
 
-.actionButton{
+.btn{
 
     flex:1;
 
     border:none;
 
-    border-radius:24px;
+    border-radius:26px;
 
     padding:18px;
 
@@ -107,57 +101,56 @@ body{
 
     font-weight:700;
 
-    color:white;
-
     cursor:pointer;
 
-    transition:0.18s;
+    transition:0.15s;
 
-    backdrop-filter:blur(16px);
+    color:white;
 
     box-shadow:
-      0 10px 30px rgba(0,0,0,0.35),
-      inset 0 1px rgba(255,255,255,0.12);
+        0 10px 20px rgba(0,0,0,0.12);
 
 }
 
-.actionButton:active{
+.btn:active{
     transform:scale(0.95);
 }
 
 #tapBtn{
-    background:linear-gradient(135deg,#6d7cff,#7d5cff);
+    background:#5b8cff;
 }
 
 #buildBtn{
-    background:linear-gradient(135deg,#00c6a7,#00e0ff);
+    background:#00c9a7;
 }
 
 #planetBtn{
-    background:linear-gradient(135deg,#ff9966,#ff5e62);
+    background:#ff8c42;
 }
 
-/* ===== FLOAT TEXT ===== */
+/* FLOAT TEXT */
 
 .floatText{
 
     position:fixed;
 
-    font-weight:700;
+    font-weight:800;
+
+    color:white;
 
     pointer-events:none;
 
-    animation:floatUp 1s forwards;
+    animation:up 1s forwards;
 
     z-index:999;
 
 }
 
-@keyframes floatUp{
+@keyframes up{
 
     0%{
         opacity:0;
-        transform:translateY(0px) scale(0.7);
+        transform:translateY(0px) scale(0.8);
     }
 
     20%{
@@ -166,7 +159,7 @@ body{
 
     100%{
         opacity:0;
-        transform:translateY(-80px) scale(1.3);
+        transform:translateY(-80px) scale(1.2);
     }
 
 }
@@ -176,43 +169,39 @@ body{
 
 <body>
 
-<div id="topbar">
+<div id="top">
 
-    <div class="panel">
+    <div id="title">
+        AEY PLANET
+    </div>
 
-        <div id="title">
-            AEY PLANET
-        </div>
-
-        <div id="stats">
-            Loading...
-        </div>
-
+    <div id="stats">
+        Loading...
     </div>
 
 </div>
 
-<div id="bottomUI">
+<div id="bottom">
 
     <button
         id="tapBtn"
-        class="actionButton"
+        class="btn"
     >
         Collect
     </button>
 
     <button
         id="buildBtn"
-        class="actionButton"
+        class="btn"
     >
         Upgrade
     </button>
 
     <button
         id="planetBtn"
-        class="actionButton"
+        class="btn"
     >
-        New Planet
+        Planet
     </button>
 
 </div>
