@@ -2,7 +2,7 @@ window.fragments = 0;
 window.level = 1;
 window.population = 120000;
 
-/* UI ELEMENTS */
+/* UI */
 
 const fragmentsValue =
     document.getElementById(
@@ -40,7 +40,7 @@ setTimeout(async ()=>{
 
 },500);
 
-/* UPDATE UI */
+/* UPDATE */
 
 function updateUI(){
 
@@ -74,10 +74,10 @@ document.getElementById(
         e.clientY
     );
 
-    APP.camera.position.z = 6.8;
+    APP.camera.position.z = 8.5;
 
     setTimeout(()=>{
-        APP.camera.position.z = 7;
+        APP.camera.position.z = 8.8;
     },80);
 
     updateUI();
@@ -117,10 +117,10 @@ document.getElementById(
             { level }
         );
 
-        APP.camera.position.z = 6.5;
+        APP.camera.position.z = 8.2;
 
         setTimeout(()=>{
-            APP.camera.position.z = 7;
+            APP.camera.position.z = 8.8;
         },150);
 
     }
@@ -129,18 +129,16 @@ document.getElementById(
 
 };
 
-/* PLANET */
+/* PLANET BUTTON */
 
 document.getElementById(
     "planetBtn"
 ).onclick = ()=>{
 
-    APP.camera.position.z = 9;
+    APP.camera.position.z = 10;
 
     setTimeout(()=>{
-        APP.camera.position.z = 7;
+        APP.camera.position.z = 8.8;
     },700);
 
 };
-
-updateUI();
