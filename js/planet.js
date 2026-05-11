@@ -20,7 +20,7 @@ const position =
 const colors = [];
 
 /* =========================
-   EARTH-LIKE CONTINENTS
+   CONTINENTS
 ========================= */
 
 const continents = [
@@ -65,18 +65,14 @@ const continents = [
         y:-0.48,
         z:-0.12,
         radius:0.18
-    },
+    }
 
 ];
-
-/* =========================
-   SAVE LAND
-========================= */
 
 window.LAND_AREAS = [];
 
 /* =========================
-   VERTEX MODIFICATION
+   VERTEX EDIT
 ========================= */
 
 for(let i=0;i<position.count;i++){
@@ -140,12 +136,12 @@ for(let i=0;i<position.count;i++){
     if(isLand){
 
         /*
-        очень слабое выпирание
+        минимальный рельеф
         */
 
         const raise =
             1 +
-            landPower * 0.04;
+            landPower * 0.035;
 
         x *= raise;
         y *= raise;
@@ -159,13 +155,13 @@ for(let i=0;i<position.count;i++){
         );
 
         /*
-        тёплый салатовый
+        яркий lime green
         */
 
         colors.push(
-            0.62,
-            0.96,
-            0.22
+            0.72,
+            1.0,
+            0.18
         );
 
         LAND_AREAS.push(
@@ -181,22 +177,18 @@ for(let i=0;i<position.count;i++){
     else{
 
         /*
-        глубокий синий
+        глубокий насыщенный синий
         */
 
         colors.push(
-            0.02,
-            0.42,
+            0.0,
+            0.30,
             0.95
         );
 
     }
 
 }
-
-/* =========================
-   COLORS
-========================= */
 
 geometry.setAttribute(
 
