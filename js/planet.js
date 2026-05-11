@@ -1,63 +1,66 @@
-/* PLANET */
+APP.planetGroup = new THREE.Group();
+
+APP.scene.add(APP.planetGroup);
+
+/* =========================
+   OCEAN
+========================= */
 
 APP.planet =
     new THREE.Mesh(
 
         new THREE.SphereGeometry(
-            2.3,
+            1.7,
             64,
             64
         ),
 
         new THREE.MeshToonMaterial({
 
-            color:0x4fa8ff
+            color:0x59b7ff
 
         })
 
     );
 
-APP.scene.add(APP.planet);
+APP.planetGroup.add(APP.planet);
 
-/* LAND */
+/* =========================
+   CONTINENTS
+========================= */
 
-const landGeo =
-    new THREE.SphereGeometry(
-        2.31,
-        64,
-        64
-    );
+window.CONTINENTS = [];
 
-const landMat =
-    new THREE.MeshToonMaterial({
-        color:0x5edc8d
-    });
+const landColors = [
+    0x6be38b,
+    0x7ce596,
+    0x63db84
+];
 
-const land =
-    new THREE.Mesh(
-        landGeo,
-        landMat
-    );
+for(let i=0;i<16;i++){
 
-APP.scene.add(land);
+    const size =
+        0.18 +
+        Math.random()*0.22;
 
-/* CONTINENTS */
-
-const continents = [];
-
-for(let i=0;i<14;i++){
-
-    const c =
+    const land =
         new THREE.Mesh(
 
             new THREE.SphereGeometry(
-                0.35 + Math.random()*0.25,
+                size,
                 18,
                 18
             ),
 
             new THREE.MeshToonMaterial({
-                color:0x5edc8d
+
+                color:
+                    landColors[
+                        Math.floor(
+                            Math.random()*landColors.length
+                        )
+                    ]
+
             })
 
         );
@@ -77,13 +80,42 @@ for(let i=0;i<14;i++){
 
             Math.sin(theta)*Math.sin(phi)
 
-        ).multiplyScalar(2.18);
+        ).multiplyScalar(1.63);
 
-    c.position.copy(pos);
+    land.position.copy(pos);
 
-    APP.planet.add(c);
+    /* orientation */
+    land.lookAt(0,0,0);
 
-    continents.push(c);
+    APP.planetGroup.add(land);
+
+    CONTINENTS.push(land);
+
 }
 
-window.CONTINENTS = continents;
+/* =========================
+   ATMOSPHERE
+========================= */
+
+const atmosphere =
+    new THREE.Mesh(
+
+        new THREE.SphereGeometry(
+            1.82,
+            48,
+            48
+        ),
+
+        new THREE.MeshBasicMaterial({
+
+            color:0xbfe9ff,
+
+            transparent:true,
+
+            opacity:0.12
+
+        })
+
+    );
+
+APP.planetGroup.add(atmosphere);
