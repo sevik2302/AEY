@@ -11,14 +11,14 @@ const ocean =
     new THREE.Mesh(
 
         new THREE.SphereGeometry(
-            2,
+            1.65,
             96,
             96
         ),
 
         new THREE.MeshToonMaterial({
 
-            color:0x1697ff
+            color:0x1497ff
 
         })
 
@@ -35,19 +35,19 @@ window.LAND_AREAS = [];
 const landMaterial =
     new THREE.MeshToonMaterial({
 
-        color:0x8bf542
+        color:0x8cf53f
 
     });
 
-for(let i=0;i<10;i++){
+for(let i=0;i<9;i++){
 
     const island =
         new THREE.Mesh(
 
             new THREE.SphereGeometry(
-                0.42 + Math.random()*0.26,
-                32,
-                32
+                0.42 + Math.random()*0.22,
+                28,
+                28
             ),
 
             landMaterial
@@ -72,10 +72,12 @@ for(let i=0;i<10;i++){
         );
 
     island.position.copy(
-        dir.multiplyScalar(1.9)
+        dir.multiplyScalar(1.58)
     );
 
-    island.scale.y = 0.35;
+    /* меньше выпирают */
+
+    island.scale.y = 0.18;
 
     island.lookAt(0,0,0);
 
