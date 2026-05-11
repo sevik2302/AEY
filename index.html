@@ -1,63 +1,187 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<title>AEY GALAXY TYCOON v3</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+
+<title>AEY Planet Tycoon</title>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 
-<!-- Supabase -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <style>
-body {
-  margin:0;
-  overflow:hidden;
-  background:black;
-  font-family: Arial;
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
 }
 
-#ui {
-  position:fixed;
-  top:20px;
-  left:20px;
-  color:white;
-  z-index:10;
+body{
+    overflow:hidden;
+    font-family:Inter,Arial,sans-serif;
+    background:#060816;
+    color:white;
 }
 
-button {
-  padding:14px 22px;
-  margin:6px;
-  border:none;
-  border-radius:12px;
-  background:#1a1a1a;
-  color:white;
-  font-weight:bold;
-  cursor:pointer;
-  font-size:14px;
+/* ===== TOP BAR ===== */
+
+#topbar{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    padding:18px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    z-index:20;
+    pointer-events:none;
 }
 
-#info {
-  margin-top:10px;
-  opacity:0.9;
+.panel{
+    backdrop-filter:blur(18px);
+    background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:22px;
+    padding:14px 18px;
+    box-shadow:
+      0 10px 30px rgba(0,0,0,0.35),
+      inset 0 1px rgba(255,255,255,0.08);
+    pointer-events:auto;
 }
+
+#title{
+    font-size:22px;
+    font-weight:800;
+    letter-spacing:0.5px;
+}
+
+#stats{
+    margin-top:6px;
+    font-size:13px;
+    opacity:0.8;
+    line-height:1.6;
+}
+
+/* ===== BOTTOM UI ===== */
+
+#bottomUI{
+    position:fixed;
+    bottom:24px;
+    left:50%;
+    transform:translateX(-50%);
+    width:92%;
+    display:flex;
+    justify-content:center;
+    gap:14px;
+    z-index:20;
+}
+
+.actionButton{
+    flex:1;
+    max-width:220px;
+
+    border:none;
+    border-radius:24px;
+
+    padding:18px;
+
+    color:white;
+    font-weight:700;
+    font-size:16px;
+
+    cursor:pointer;
+
+    transition:0.22s;
+
+    backdrop-filter:blur(18px);
+
+    box-shadow:
+      0 10px 30px rgba(0,0,0,0.35),
+      inset 0 1px rgba(255,255,255,0.12);
+}
+
+.actionButton:active{
+    transform:scale(0.96);
+}
+
+#tapBtn{
+    background:linear-gradient(135deg,#5b8cff,#7a5cff);
+}
+
+#buildBtn{
+    background:linear-gradient(135deg,#00c9a7,#00e1ff);
+}
+
+#planetBtn{
+    background:linear-gradient(135deg,#ff9966,#ff5e62);
+}
+
+/* ===== FLOAT TEXT ===== */
+
+.floatText{
+    position:fixed;
+    color:white;
+    font-weight:700;
+    pointer-events:none;
+    animation:floatUp 1s forwards;
+    z-index:999;
+}
+
+@keyframes floatUp{
+    0%{
+        opacity:0;
+        transform:translateY(0px) scale(0.8);
+    }
+    20%{
+        opacity:1;
+    }
+    100%{
+        opacity:0;
+        transform:translateY(-80px) scale(1.2);
+    }
+}
+
 </style>
-
 </head>
 
 <body>
 
-<div id="ui">
-  <button onclick="tap()">TAP</button>
-  <button onclick="build()">BUILD</button>
-  <button onclick="nextPlanet()">NEXT</button>
-  <div id="info"></div>
+<div id="topbar">
+
+    <div class="panel">
+        <div id="title">AEY PLANET</div>
+
+        <div id="stats">
+            Fragments: 0<br>
+            Level: 1<br>
+            Population: 120K
+        </div>
+    </div>
+
+</div>
+
+<div id="bottomUI">
+
+    <button id="tapBtn" class="actionButton">
+        Collect
+    </button>
+
+    <button id="buildBtn" class="actionButton">
+        Upgrade
+    </button>
+
+    <button id="planetBtn" class="actionButton">
+        New Planet
+    </button>
+
 </div>
 
 <script src="js/engine.js"></script>
 <script src="js/planet.js"></script>
 <script src="js/cities.js"></script>
-<script src="js/supabase.js"></script>
+<script src="js/ui.js"></script>
 <script src="js/game.js"></script>
 
 </body>
