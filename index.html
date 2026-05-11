@@ -2,15 +2,18 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>AEY TYCOON GALAXY</title>
+<title>AEY GALAXY TYCOON v3</title>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+
+<!-- Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 body {
   margin:0;
   overflow:hidden;
-  background:#000;
+  background:black;
   font-family: Arial;
 }
 
@@ -23,7 +26,7 @@ body {
 }
 
 button {
-  padding:14px 20px;
+  padding:14px 22px;
   margin:6px;
   border:none;
   border-radius:12px;
@@ -31,6 +34,12 @@ button {
   color:white;
   font-weight:bold;
   cursor:pointer;
+  font-size:14px;
+}
+
+#info {
+  margin-top:10px;
+  opacity:0.9;
 }
 </style>
 
@@ -48,6 +57,7 @@ button {
 <script src="js/engine.js"></script>
 <script src="js/planet.js"></script>
 <script src="js/cities.js"></script>
+<script src="js/supabase.js"></script>
 <script src="js/game.js"></script>
 
 </body>
