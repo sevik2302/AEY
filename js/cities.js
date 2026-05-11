@@ -1,7 +1,15 @@
 APP.cityGroup =
     new THREE.Group();
 
-APP.scene.add(APP.cityGroup);
+/*
+ВАЖНО:
+добавляем НЕ в scene,
+а в planetGroup
+*/
+
+APP.planetGroup.add(
+    APP.cityGroup
+);
 
 /* =========================
    LAND CHECK
@@ -24,7 +32,7 @@ function isLand(normal){
 }
 
 /* =========================
-   CITIES
+   SPAWN CITIES
 ========================= */
 
 window.spawnCities =
@@ -33,11 +41,15 @@ function(level=1){
     APP.cityGroup.clear();
 
     const count =
-        30 + level*5;
+        32 + level*5;
 
     for(let i=0;i<count;i++){
 
         let normal;
+
+        /*
+        ищем сушу
+        */
 
         for(let t=0;t<120;t++){
 
@@ -64,37 +76,51 @@ function(level=1){
 
         }
 
+        /*
+        маленькие здания
+        */
+
         const height =
-            0.12 +
-            Math.random()*0.18 +
-            level*0.008;
+            0.10 +
+            Math.random()*0.16 +
+            level*0.007;
 
         const building =
             new THREE.Mesh(
 
                 new THREE.BoxGeometry(
-                    0.05,
+                    0.045,
                     height,
-                    0.05
+                    0.045
                 ),
 
                 new THREE.MeshToonMaterial({
 
-                    color:0xfff7ec
+                    color:0xfff8ef
 
                 })
 
             );
 
-        /* чуть выше суши */
+        /*
+        ПРИКРЕПЛЯЕМ
+        к поверхности
+        */
+
+        const surfaceRadius =
+            1.67;
 
         building.position.copy(
 
             normal.clone().multiplyScalar(
-                1.68 + height/2
+                surfaceRadius + height/2
             )
 
         );
+
+        /*
+        направление наружу
+        */
 
         building.quaternion.setFromUnitVectors(
 
@@ -104,7 +130,9 @@ function(level=1){
 
         );
 
-        APP.cityGroup.add(building);
+        APP.cityGroup.add(
+            building
+        );
 
     }
 
