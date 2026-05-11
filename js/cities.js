@@ -1,8 +1,6 @@
 APP.cityGroup =
     new THREE.Group();
 
-/* прикрепляем к планете */
-
 APP.planetGroup.add(
     APP.cityGroup
 );
@@ -28,17 +26,32 @@ function isLand(normal){
 }
 
 /* =========================
-   CREATE BUILDING
+   BUILDING
 ========================= */
 
-function createBuilding(height){
+function createBuilding(type,height){
 
     const group =
         new THREE.Group();
 
-    /* =====================
-       MAIN BUILDING
-    ===================== */
+    let bodyColor =
+        0xfff7ed;
+
+    if(type === "tower"){
+
+        bodyColor =
+            0xdff4ff;
+
+    }
+
+    if(type === "factory"){
+
+        bodyColor =
+            0xffddb5;
+
+    }
+
+    /* BODY */
 
     const body =
         new THREE.Mesh(
@@ -51,7 +64,7 @@ function createBuilding(height){
 
             new THREE.MeshToonMaterial({
 
-                color:0xfff7ed
+                color:bodyColor
 
             })
 
@@ -59,9 +72,7 @@ function createBuilding(height){
 
     group.add(body);
 
-    /* =====================
-       ROOF
-    ===================== */
+    /* ROOF */
 
     const roof =
         new THREE.Mesh(
@@ -74,7 +85,7 @@ function createBuilding(height){
 
             new THREE.MeshToonMaterial({
 
-                color:0xff6b5e
+                color:0xff725c
 
             })
 
@@ -84,25 +95,25 @@ function createBuilding(height){
         height/2 + 0.02;
 
     roof.rotation.y =
-        Math.PI * 0.25;
+        Math.PI*0.25;
 
     group.add(roof);
 
-    /* =====================
-       WINDOWS
-    ===================== */
+    /* WINDOWS */
 
     const windowMaterial =
         new THREE.MeshToonMaterial({
 
-            color:0x8ed8ff
+            color:0x8ed8ff,
+            emissive:0x4db8ff,
+            emissiveIntensity:0.4
 
         });
 
     const rows =
         Math.max(
             2,
-            Math.floor(height * 10)
+            Math.floor(height*10)
         );
 
     for(let y=0;y<rows;y++){
@@ -127,9 +138,7 @@ function createBuilding(height){
                 0.04 +
                 y*0.03;
 
-            /* FRONT */
-
-            if(side === 0){
+            if(side===0){
 
                 win.position.set(
                     0,
@@ -139,9 +148,7 @@ function createBuilding(height){
 
             }
 
-            /* BACK */
-
-            if(side === 1){
+            if(side===1){
 
                 win.position.set(
                     0,
@@ -151,9 +158,7 @@ function createBuilding(height){
 
             }
 
-            /* LEFT */
-
-            if(side === 2){
+            if(side===2){
 
                 win.position.set(
                     -0.026,
@@ -166,9 +171,7 @@ function createBuilding(height){
 
             }
 
-            /* RIGHT */
-
-            if(side === 3){
+            if(side===3){
 
                 win.position.set(
                     0.026,
@@ -188,10 +191,11 @@ function createBuilding(height){
     }
 
     return group;
+
 }
 
 /* =========================
-   SPAWN CITIES
+   SPAWN
 ========================= */
 
 window.spawnCities =
@@ -200,13 +204,11 @@ function(level=1){
     APP.cityGroup.clear();
 
     const count =
-        30 + level*5;
+        36 + level*5;
 
     for(let i=0;i<count;i++){
 
         let normal;
-
-        /* ищем сушу */
 
         for(let t=0;t<120;t++){
 
@@ -233,36 +235,55 @@ function(level=1){
 
         }
 
-        /*
-        высота здания
-        */
+        /* TYPES */
 
-        const height =
+        let type = "house";
+
+        const rand =
+            Math.random();
+
+        if(rand > 0.82){
+
+            type = "tower";
+
+        }
+
+        if(rand > 0.94){
+
+            type = "factory";
+
+        }
+
+        let height =
             0.10 +
             Math.random()*0.14 +
             level*0.006;
 
+        if(type==="tower"){
+
+            height *= 1.8;
+
+        }
+
+        if(type==="factory"){
+
+            height *= 0.8;
+
+        }
+
         const building =
-            createBuilding(height);
-
-        /*
-        поверхность
-        */
-
-        const radius =
-            1.67;
+            createBuilding(
+                type,
+                height
+            );
 
         building.position.copy(
 
             normal.clone().multiplyScalar(
-                radius + height/2
+                1.68 + height/2
             )
 
         );
-
-        /*
-        направление наружу
-        */
 
         building.quaternion.setFromUnitVectors(
 
