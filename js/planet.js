@@ -1,85 +1,88 @@
-APP.planetGroup = new THREE.Group();
+APP.planetGroup =
+    new THREE.Group();
+
 APP.scene.add(APP.planetGroup);
 
 /* =========================
-   WATER PLANET
+   OCEAN
 ========================= */
-const water = new THREE.Mesh(
-    new THREE.SphereGeometry(1.75, 128, 128),
-    new THREE.MeshToonMaterial({
-        color: 0x1f6fff
-    })
-);
 
-APP.planetGroup.add(water);
+const ocean =
+    new THREE.Mesh(
+
+        new THREE.SphereGeometry(
+            2,
+            96,
+            96
+        ),
+
+        new THREE.MeshToonMaterial({
+
+            color:0x1697ff
+
+        })
+
+    );
+
+APP.planetGroup.add(ocean);
 
 /* =========================
-   CONTINENT BASE SHAPE (REAL FIX)
+   LAND
 ========================= */
 
-window.LAND_POINTS = [];
+window.LAND_AREAS = [];
 
-const landMaterial = new THREE.MeshToonMaterial({
-    color: 0x35e06f
-});
+const landMaterial =
+    new THREE.MeshToonMaterial({
 
-/* создаём "континенты" как группы мягких пятен, но БЕЗ lookAt */
-const CONTINENTS = [
-    new THREE.Vector3( 0.9,  0.2,  0.3),
-    new THREE.Vector3(-0.8,  0.1,  0.4),
-    new THREE.Vector3( 0.2,  0.8, -0.3),
-    new THREE.Vector3(-0.3, -0.7,  0.5),
-    new THREE.Vector3( 0.4, -0.2, -0.9)
-];
+        color:0x8bf542
 
-CONTINENTS.forEach(center => {
+    });
 
-    const baseDir = center.clone().normalize();
+for(let i=0;i<10;i++){
 
-    const group = new THREE.Group();
+    const island =
+        new THREE.Mesh(
 
-    for (let i = 0; i < 18; i++) {
-
-        const spread = new THREE.Vector3(
-            (Math.random() - 0.5) * 0.25,
-            (Math.random() - 0.5) * 0.25,
-            (Math.random() - 0.5) * 0.25
-        );
-
-        const dir = baseDir.clone().add(spread).normalize();
-
-        const radius = 1.73;
-
-        const land = new THREE.Mesh(
             new THREE.SphereGeometry(
-                0.18 + Math.random() * 0.12,
-                24,
-                24
+                0.42 + Math.random()*0.26,
+                32,
+                32
             ),
+
             landMaterial
+
         );
 
-        const pos = dir.multiplyScalar(radius);
+    const phi =
+        Math.random()*Math.PI*2;
 
-        land.position.copy(pos);
+    const theta =
+        Math.random()*Math.PI;
 
-        /* 🔥 ВАЖНО: НЕ lookAt — убираем вертикальные “диски” */
-        land.quaternion.setFromUnitVectors(
-            new THREE.Vector3(0,1,0),
-            dir
+    const dir =
+        new THREE.Vector3(
+
+            Math.sin(theta)*Math.cos(phi),
+
+            Math.cos(theta),
+
+            Math.sin(theta)*Math.sin(phi)
+
         );
 
-        /* 🔥 МЯГКАЯ ВЫПУКЛОСТЬ (НЕ ВЕРТИКАЛЬНЫЕ ПЛАСТЫ) */
-        land.scale.set(
-            1.4 + Math.random() * 0.6,
-            0.2 + Math.random() * 0.1,
-            1.4 + Math.random() * 0.6
-        );
+    island.position.copy(
+        dir.multiplyScalar(1.9)
+    );
 
-        group.add(land);
+    island.scale.y = 0.35;
 
-        LAND_POINTS.push(dir.clone());
-    }
+    island.lookAt(0,0,0);
 
-    APP.planetGroup.add(group);
-});
+    APP.planetGroup.add(island);
+
+    LAND_AREAS.push(
+        island.position.clone().normalize()
+    );
+
+}
