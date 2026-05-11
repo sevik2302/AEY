@@ -1,50 +1,54 @@
 window.cityObjects = [];
 
+const RADIUS = 2.02;
+
 /* =========================
-   SAFETY CHECK (FIX CRASHES)
+   CONTINENT MASK (IMPROVED)
 ========================= */
 
-function safeScene(){
-  if(typeof scene === "undefined"){
-    console.error("Scene not ready");
-    return false;
-  }
-  return true;
+function landNoise(x, z) {
+
+  return (
+    Math.sin(x * 2.2) +
+    Math.cos(z * 2.7) +
+    Math.sin((x + z) * 1.4)
+  );
+
+}
+
+function isLand(x, z) {
+  return landNoise(x, z) > 0.15;
 }
 
 /* =========================
-   CITY GROUP INIT (CRITICAL FIX)
-========================= */
-
-if(typeof cityGroup === "undefined"){
-  window.cityGroup = new THREE.Group();
-  scene.add(cityGroup);
-}
-
-/* =========================
-   BASIC CITY GENERATION (STABLE VERSION)
+   CITY GENERATION (REAL SURFACE)
 ========================= */
 
 window.generateCities = function () {
 
-  if(!safeScene()) return;
-
   cityGroup.clear();
   cityObjects = [];
 
-  const radius = 2.02;
-  const cityCount = 5;
+  const cityCount = 7;
 
   for (let i = 0; i < cityCount; i++) {
 
-    const phi = Math.random() * Math.PI * 2;
-    const theta = Math.acos((Math.random() * 2) - 1);
+    let base;
 
-    const base = new THREE.Vector3(
-      Math.sin(theta) * Math.cos(phi),
-      Math.cos(theta),
-      Math.sin(theta) * Math.sin(phi)
-    ).multiplyScalar(radius);
+    /* ищем только сушу */
+    for (let tries = 0; tries < 20; tries++) {
+
+      const phi = Math.random() * Math.PI * 2;
+      const theta = Math.acos((Math.random() * 2) - 1);
+
+      base = new THREE.Vector3(
+        Math.sin(theta) * Math.cos(phi),
+        Math.cos(theta),
+        Math.sin(theta) * Math.sin(phi)
+      ).multiplyScalar(RADIUS);
+
+      if (isLand(base.x, base.z)) break;
+    }
 
     const normal = base.clone().normalize();
 
@@ -53,41 +57,64 @@ window.generateCities = function () {
       buildings: []
     };
 
-    for (let j = 0; j < 20; j++) {
+    /* =========================
+       DENSE CITY CLUSTER
+    ========================= */
 
-      const height = 0.05 + Math.random() * 0.1;
+    const density = 35;
+
+    for (let j = 0; j < density; j++) {
+
+      /* height progression */
+      const height =
+        0.03 +
+        Math.pow(Math.random(), 2) * 0.8;
+
+      const isSkyscraper = Math.random() > 0.92;
 
       const mesh = new THREE.Mesh(
 
-        new THREE.BoxGeometry(0.03, height, 0.03),
+        new THREE.BoxGeometry(0.02, height, 0.02),
 
         new THREE.MeshStandardMaterial({
-          color: 0xd9d9d9,
+          color: isSkyscraper ? 0xaadfff : 0xdcdcdc,
           emissive: 0x000000
         })
 
       );
 
-      /* POSITION ON SPHERE */
-      const offset = new THREE.Vector3(
-        (Math.random() - 0.5) * 0.1,
-        (Math.random() - 0.5) * 0.1,
-        (Math.random() - 0.5) * 0.1
-      );
+      /* =========================
+         SPREAD ON SPHERE SURFACE
+      ========================= */
 
-      const pos = base.clone().add(offset).normalize().multiplyScalar(radius);
+      const tangent = new THREE.Vector3(
+        Math.random() - 0.5,
+        Math.random() - 0.5,
+        Math.random() - 0.5
+      ).normalize().multiplyScalar(0.15);
 
-      mesh.position.copy(
-        pos.clone().add(normal.clone().multiplyScalar(height / 2))
-      );
+      const pos = base.clone()
+        .add(tangent)
+        .normalize()
+        .multiplyScalar(RADIUS);
+
+      /* =========================
+         NORMAL ALIGNMENT (KEY FIX)
+      ========================= */
+
+      const finalPos =
+        pos.clone()
+        .add(normal.clone().multiplyScalar(height / 2));
+
+      mesh.position.copy(finalPos);
 
       mesh.lookAt(pos.clone().add(normal));
 
       mesh.userData.baseHeight = height;
+      mesh.userData.normal = normal;
 
       cityGroup.add(mesh);
       city.buildings.push(mesh);
-
     }
 
     cityObjects.push(city);
@@ -95,24 +122,33 @@ window.generateCities = function () {
 };
 
 /* =========================
-   SAFE GROW FUNCTION
+   GROW SYSTEM (REAL EVOLUTION)
 ========================= */
 
 window.growCities = function (level) {
-
-  if(!cityObjects.length) return;
 
   cityObjects.forEach(city => {
 
     city.buildings.forEach(b => {
 
-      const scale = 1 + level * 0.12;
+      const scale = 1 + level * 0.18;
 
       b.scale.y = scale;
 
-      if(level > 3){
+      /* push outward along normal */
+      const n = b.userData.normal;
+
+      b.position.addScaledVector(n, 0);
+
+      /* emissive night effect */
+      if (level > 2) {
         b.material.emissive.setHex(0x111122);
-        b.material.emissiveIntensity = 0.5;
+        b.material.emissiveIntensity = 0.6;
+      }
+
+      /* skyscraper boost */
+      if (level > 6 && Math.random() > 0.97) {
+        b.scale.y *= 2.5;
       }
 
     });
@@ -122,17 +158,12 @@ window.growCities = function (level) {
 };
 
 /* =========================
-   RESET SAFE
+   RESET
 ========================= */
 
 window.resetCities = function () {
   generateCities();
 };
 
-/* =========================
-   AUTO INIT (IMPORTANT FIX)
-========================= */
-
-setTimeout(() => {
-  generateCities();
-}, 300);
+/* INIT */
+generateCities();
