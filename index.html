@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 
 <meta charset="UTF-8">
@@ -8,7 +8,7 @@
 name="viewport"
 content="width=device-width,initial-scale=1.0,user-scalable=no">
 
-<title>AEY Planet</title>
+<title>AEY PLANET</title>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 
@@ -25,53 +25,98 @@ content="width=device-width,initial-scale=1.0,user-scalable=no">
 
 body{
     overflow:hidden;
-    background:#8ed8ff;
     font-family:Inter,Arial,sans-serif;
+    background:linear-gradient(
+        to bottom,
+        #73d2ff,
+        #a6ebff
+    );
 }
 
-/* ===== TOP ===== */
+/* ===== CANVAS ===== */
 
-#top{
+canvas{
+    display:block;
+}
+
+/* ===== TOP CARD ===== */
+
+#topCard{
 
     position:fixed;
 
-    top:18px;
+    top:24px;
 
-    left:18px;
+    left:24px;
 
-    z-index:20;
+    width:320px;
 
     background:white;
 
-    border-radius:28px;
+    border-radius:30px;
 
-    padding:18px 22px;
+    padding:22px;
+
+    z-index:20;
 
     box-shadow:
-        0 10px 30px rgba(0,0,0,0.12);
+        0 12px 40px rgba(0,0,0,0.15);
 
 }
 
 #title{
-    font-size:24px;
-    font-weight:800;
-    color:#2a2a2a;
+
+    font-size:28px;
+
+    font-weight:900;
+
+    color:#2d2d2d;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
 }
 
-#stats{
-    margin-top:8px;
-    line-height:1.7;
-    color:#555;
-    font-size:14px;
+.stat{
+
+    margin-top:18px;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    font-size:18px;
+
+    font-weight:700;
+
+    color:#3c3c3c;
+
+}
+
+.valueBlue{
+    color:#2f89ff;
+}
+
+.valueGreen{
+    color:#45c95b;
+}
+
+.valueOrange{
+    color:#ff8a29;
 }
 
 /* ===== BUTTONS ===== */
 
-#bottom{
+#bottomUI{
 
     position:fixed;
 
-    bottom:22px;
+    bottom:26px;
 
     left:50%;
 
@@ -81,76 +126,79 @@ body{
 
     display:flex;
 
-    gap:14px;
+    gap:20px;
 
     z-index:20;
 
 }
 
-.btn{
+.gameBtn{
 
     flex:1;
 
     border:none;
 
-    border-radius:26px;
+    border-radius:30px;
 
-    padding:18px;
+    padding:24px;
 
-    font-size:16px;
-
-    font-weight:700;
-
-    cursor:pointer;
-
-    transition:0.15s;
-
-    color:white;
-
-    box-shadow:
-        0 10px 20px rgba(0,0,0,0.12);
-
-}
-
-.btn:active{
-    transform:scale(0.95);
-}
-
-#tapBtn{
-    background:#5b8cff;
-}
-
-#buildBtn{
-    background:#00c9a7;
-}
-
-#planetBtn{
-    background:#ff8c42;
-}
-
-/* FLOAT TEXT */
-
-.floatText{
-
-    position:fixed;
+    font-size:22px;
 
     font-weight:800;
 
     color:white;
 
+    cursor:pointer;
+
+    transition:0.15s;
+
+    box-shadow:
+        inset 0 -8px rgba(0,0,0,0.12),
+        0 12px 25px rgba(0,0,0,0.16);
+
+}
+
+.gameBtn:active{
+    transform:scale(0.96);
+}
+
+#collectBtn{
+    background:#2f7cff;
+}
+
+#upgradeBtn{
+    background:#6add35;
+}
+
+#planetBtn{
+    background:#ff952b;
+}
+
+/* ===== FLOAT TEXT ===== */
+
+.floatText{
+
+    position:fixed;
+
+    color:white;
+
+    font-weight:900;
+
+    font-size:24px;
+
     pointer-events:none;
 
-    animation:up 1s forwards;
+    animation:floatUp 1s forwards;
 
     z-index:999;
 
 }
 
-@keyframes up{
+@keyframes floatUp{
 
     0%{
         opacity:0;
-        transform:translateY(0px) scale(0.8);
+        transform:translateY(0px) scale(0.7);
     }
 
     20%{
@@ -169,39 +217,65 @@ body{
 
 <body>
 
-<div id="top">
+<div id="topCard">
 
     <div id="title">
-        AEY PLANET
+        👑 AEY PLANET
     </div>
 
-    <div id="stats">
-        Loading...
+    <div class="stat">
+        <span>💎 Fragments</span>
+        <span
+            id="fragmentsValue"
+            class="valueBlue"
+        >
+            0
+        </span>
+    </div>
+
+    <div class="stat">
+        <span>⭐ Level</span>
+        <span
+            id="levelValue"
+            class="valueGreen"
+        >
+            1
+        </span>
+    </div>
+
+    <div class="stat">
+        <span>🟠 Population</span>
+        <span
+            id="populationValue"
+            class="valueOrange"
+        >
+            120K
+        </span>
     </div>
 
 </div>
 
-<div id="bottom">
+<div id="bottomUI">
 
     <button
-        id="tapBtn"
-        class="btn"
+        id="collectBtn"
+        class="gameBtn"
     >
-        Collect
+        👆 Collect
     </button>
 
     <button
-        id="buildBtn"
-        class="btn"
+        id="upgradeBtn"
+        class="gameBtn"
     >
-        Upgrade
+        ⬆ Upgrade
     </button>
 
     <button
         id="planetBtn"
-        class="btn"
+        class="gameBtn"
     >
-        Planet
+        🌎 Planet
     </button>
 
 </div>
