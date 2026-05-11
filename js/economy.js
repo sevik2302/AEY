@@ -3,47 +3,77 @@ window.cityObjects = [];
 const RADIUS = 2.02;
 
 /* =========================
-   BETTER LAND FILTER (NO MORE OCEAN CITIES)
+   EARTH TEXTURE SAMPLING (REAL LAND DETECTION)
 ========================= */
 
-function isLandLike(pos) {
+const canvas = document.createElement("canvas");
+const ctx = canvas.getContext("2d");
 
-  const n = pos.clone().normalize();
+const img = new Image();
+img.crossOrigin = "anonymous";
+img.src = "https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg";
 
-  const lat = n.y;
-  const lon = Math.atan2(n.z, n.x);
+let textureReady = false;
 
-  /* ❌ океаны чаще в этих зонах */
-  const oceanBands =
-    Math.abs(lat) < 0.25 ||        // экваториальные океаны
-    Math.abs(lat) > 0.85;          // полярные льды
+img.onload = () => {
 
-  if (oceanBands) return false;
+  canvas.width = 1024;
+  canvas.height = 512;
 
-  /* псевдо-континентальная структура */
-  const continentPattern =
-    Math.sin(lon * 3.0) + Math.cos(lat * 5.0);
+  ctx.drawImage(img, 0, 0, 1024, 512);
 
-  return continentPattern > -0.2;
+  textureReady = true;
 
+  generateCities(); // пересоздаём после загрузки
+
+};
+
+/* =========================
+   UV -> COLOR CHECK
+========================= */
+
+function isLandUV(vec) {
+
+  if (!textureReady) return true;
+
+  const n = vec.clone().normalize();
+
+  const u = 0.5 + Math.atan2(n.z, n.x) / (2 * Math.PI);
+  const v = 0.5 - Math.asin(n.y) / Math.PI;
+
+  const x = Math.floor(u * 1024);
+  const y = Math.floor(v * 512);
+
+  const pixel = ctx.getImageData(x, y, 1, 1).data;
+
+  const r = pixel[0];
+  const g = pixel[1];
+  const b = pixel[2];
+
+  /* океан = синий */
+  const isOcean = b > r && b > g;
+
+  return !isOcean;
 }
 
 /* =========================
-   CITY GENERATION
+   CITY GENERATION (ONLY LAND)
 ========================= */
 
 window.generateCities = function () {
 
+  if (!textureReady) return;
+
   cityGroup.clear();
   cityObjects = [];
 
-  const cityCount = 10;
+  const cityCount = 12;
 
   for (let i = 0; i < cityCount; i++) {
 
     let base;
 
-    for (let tries = 0; tries < 80; tries++) {
+    for (let tries = 0; tries < 200; tries++) {
 
       const phi = Math.random() * Math.PI * 2;
       const theta = Math.acos((Math.random() * 2) - 1);
@@ -54,7 +84,7 @@ window.generateCities = function () {
         Math.sin(theta) * Math.sin(phi)
       ).multiplyScalar(RADIUS);
 
-      if (isLandLike(base)) break;
+      if (isLandUV(base)) break;
 
     }
 
@@ -62,21 +92,23 @@ window.generateCities = function () {
 
     const city = {
       base,
-      buildings: [],
-      level: 0
+      buildings: []
     };
 
     /* =========================
-       INITIAL SMALL SETTLEMENT
+       MORE BUILDINGS, SMALLER SIZE
     ========================= */
 
-    const density = 25;
+    const density = 70; // больше зданий
 
     for (let j = 0; j < density; j++) {
 
+      const height =
+        0.02 + Math.pow(Math.random(), 1.8) * 0.6; // меньше и мягче
+
       const mesh = new THREE.Mesh(
 
-        new THREE.BoxGeometry(0.02, 0.03, 0.02),
+        new THREE.BoxGeometry(0.015, height, 0.015),
 
         new THREE.MeshStandardMaterial({
           color: 0xdcdcdc,
@@ -86,9 +118,9 @@ window.generateCities = function () {
       );
 
       const offset = new THREE.Vector3(
-        (Math.random() - 0.5) * 0.1,
-        (Math.random() - 0.5) * 0.1,
-        (Math.random() - 0.5) * 0.1
+        (Math.random() - 0.5) * 0.08,
+        (Math.random() - 0.5) * 0.08,
+        (Math.random() - 0.5) * 0.08
       );
 
       const pos = base.clone()
@@ -98,16 +130,16 @@ window.generateCities = function () {
 
       mesh.position.copy(
         pos.clone().add(
-          normal.clone().multiplyScalar(0.02)
+          normal.clone().multiplyScalar(height / 2)
         )
       );
 
       mesh.quaternion.setFromUnitVectors(
-        new THREE.Vector3(0,1,0),
+        new THREE.Vector3(0, 1, 0),
         normal
       );
 
-      mesh.userData.baseHeight = 0.03;
+      mesh.userData.baseHeight = height;
 
       cityGroup.add(mesh);
       city.buildings.push(mesh);
@@ -119,45 +151,29 @@ window.generateCities = function () {
 };
 
 /* =========================
-   PROPER GROWTH SYSTEM (3 STAGES)
+   GROW SYSTEM (CONTROLLED)
 ========================= */
 
 window.growCities = function (level) {
 
   cityObjects.forEach(city => {
 
-    city.level = level;
-
     city.buildings.forEach(b => {
 
-      let scale;
+      /* мягкий рост */
+      const scale = 1 + level * 0.18;
 
-      /* STAGE SYSTEM */
+      b.scale.y = Math.min(scale, 4); // ограничение высоты
 
-      if (level < 3) {
-        scale = 1 + level * 0.1;       // деревня
-      }
-      else if (level < 7) {
-        scale = 1 + level * 0.25;      // город
-      }
-      else {
-        scale = 1 + level * 0.4;       // мегаполис
-      }
-
-      b.scale.y = scale;
-
-      /* HEIGHT LIMIT (fix "too big from start") */
-      b.scale.y = Math.min(b.scale.y, 6);
-
-      /* LIGHTS ONLY LATE GAME */
+      /* lights later */
       if (level > 4) {
-        b.material.emissive.setHex(0x111133);
+        b.material.emissive.setHex(0x111122);
         b.material.emissiveIntensity = 0.5;
       }
 
-      /* SKYLINES ONLY ENDGAME */
-      if (level > 8 && Math.random() > 0.98) {
-        b.scale.y *= 2.2;
+      /* rare skyscrapers */
+      if (level > 7 && Math.random() > 0.99) {
+        b.scale.y *= 2;
       }
 
     });
@@ -173,6 +189,3 @@ window.growCities = function (level) {
 window.resetCities = function () {
   generateCities();
 };
-
-/* INIT */
-setTimeout(() => generateCities(), 300);
