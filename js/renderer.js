@@ -1,116 +1,128 @@
-window.scene = new THREE.Scene();
+const scene = new THREE.Scene();
 
-window.camera = new THREE.PerspectiveCamera(
+/* =========================
+   CINEMATIC CAMERA
+========================= */
 
-  60,
-
-  window.innerWidth /
-  window.innerHeight,
-
+const camera = new THREE.PerspectiveCamera(
+  45,
+  innerWidth / innerHeight,
   0.1,
-
-  1000
-
+  2000
 );
 
-camera.position.z = 6;
+camera.position.set(0, 0.15, 6.8);
 
-window.renderer =
-  new THREE.WebGLRenderer({
+/* =========================
+   RENDERER (FILM QUALITY)
+========================= */
 
-    antialias:true
+const renderer = new THREE.WebGLRenderer({
+  antialias: true,
+  powerPreference: "high-performance"
+});
 
-  });
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 
-renderer.setSize(
-  window.innerWidth,
-  window.innerHeight
-);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.35;
 
-renderer.setPixelRatio(
-  window.devicePixelRatio
-);
+document.body.appendChild(renderer.domElement);
 
-document.body.appendChild(
-  renderer.domElement
-);
+/* =========================
+   LIGHTING (FINAL BALANCE)
+========================= */
 
-/* LIGHT */
-
-scene.add(
-  new THREE.AmbientLight(
-    0x404040,
-    2
-  )
-);
-
-window.sun =
-  new THREE.PointLight(
-    0xffffff,
-    7,
-    100
-  );
-
-sun.position.set(10,6,8);
-
+const sun = new THREE.DirectionalLight(0xffffff, 2.3);
+sun.position.set(6, 3, 4);
 scene.add(sun);
 
-/* LOOP */
+scene.add(new THREE.AmbientLight(0x1a2233, 0.75));
 
-function animate(){
+/* =========================
+   BLOOM (CONTROLLED CINEMA LOOK)
+========================= */
 
-  requestAnimationFrame(
-    animate
-  );
+const composer = new THREE.EffectComposer(renderer);
 
-  if(window.planet){
+composer.addPass(new THREE.RenderPass(scene, camera));
 
-    planet.rotation.y += 0.0011;
+const bloom = new THREE.UnrealBloomPass(
+  new THREE.Vector2(innerWidth, innerHeight),
+  1.0,   // strength
+  0.45,  // radius
+  0.18   // threshold
+);
 
-  }
+composer.addPass(bloom);
 
-  if(window.clouds){
+/* =========================
+   STARS (DEPTH LAYERS)
+========================= */
 
-    clouds.rotation.y += 0.0014;
+const geo = new THREE.BufferGeometry();
+const pos = [];
 
-  }
+for (let i = 0; i < 16000; i++) {
 
-  if(window.atmosphere){
+  pos.push((Math.random() - 0.5) * 1000);
+  pos.push((Math.random() - 0.5) * 1000);
+  pos.push((Math.random() - 0.5) * 1000);
 
-    atmosphere.rotation.y += 0.001;
+}
 
-  }
+geo.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
 
-  if(window.cityGroup){
+const stars = new THREE.Points(
+  geo,
+  new THREE.PointsMaterial({
+    color: 0xffffff,
+    size: 0.025
+  })
+);
 
-    cityGroup.rotation.y += 0.0011;
+scene.add(stars);
 
-  }
+/* =========================
+   CAMERA DRIFT (CINEMATIC FINAL TOUCH)
+========================= */
 
-  renderer.render(
-    scene,
-    camera
-  );
+let t = 0;
+
+/* =========================
+   LOOP
+========================= */
+
+function animate() {
+
+  requestAnimationFrame(animate);
+
+  t += 0.001;
+
+  if (window.planet) planet.rotation.y += 0.001;
+
+  if (window.clouds) clouds.rotation.y += 0.0015;
+
+  camera.position.x = Math.sin(t) * 0.2;
+  camera.position.y = Math.cos(t * 0.6) * 0.08;
+  camera.position.z = 6.8 + Math.sin(t * 0.3) * 0.15;
+
+  camera.lookAt(0, 0, 0);
+
+  composer.render();
+
 }
 
 animate();
 
-/* RESIZE */
+/* resize */
+window.addEventListener("resize", () => {
 
-window.addEventListener(
-  "resize",
-  ()=>{
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
 
-    camera.aspect =
-      window.innerWidth /
-      window.innerHeight;
+  renderer.setSize(innerWidth, innerHeight);
+  composer.setSize(innerWidth, innerHeight);
 
-    camera.updateProjectionMatrix();
-
-    renderer.setSize(
-      window.innerWidth,
-      window.innerHeight
-    );
-
-  }
-);
+});
