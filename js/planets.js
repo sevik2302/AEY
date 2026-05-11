@@ -1,65 +1,138 @@
 const loader = new THREE.TextureLoader();
 
-/* TEXTURES */
-const dayMap = loader.load(
-  "https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg"
-);
+/* =========================
+   PLANET TYPES (VARIATION SYSTEM)
+========================= */
 
-const nightMap = loader.load(
-  "https://threejs.org/examples/textures/planets/earth_lights_2048.png"
-);
+const planetTypes = [
 
-const cloudsMap = loader.load(
-  "https://threejs.org/examples/textures/planets/earth_clouds_1024.png"
-);
+  {
+    name: "Terra",
+    color: 0x4da6ff,
+    atmosphere: 0x4da6ff
+  },
 
-/* PLANET CORE */
-window.planet = new THREE.Mesh(
-  new THREE.SphereGeometry(2, 256, 256),
-  new THREE.MeshStandardMaterial({
-    map: dayMap,
-    emissiveMap: nightMap,
-    emissive: new THREE.Color(0xffffff),
-    emissiveIntensity: 0.6,
-    roughness: 1,
-    metalness: 0
-  })
-);
+  {
+    name: "Ice",
+    color: 0xaadfff,
+    atmosphere: 0x88ccff
+  },
+
+  {
+    name: "Desert",
+    color: 0xffcc88,
+    atmosphere: 0xffaa55
+  },
+
+  {
+    name: "Lava",
+    color: 0xff5533,
+    atmosphere: 0xff3300
+  }
+
+];
+
+/* =========================
+   CURRENT PLANET
+========================= */
+
+window.currentPlanetType =
+  planetTypes[0];
+
+/* =========================
+   PLANET CORE
+========================= */
+
+window.planet =
+  new THREE.Mesh(
+
+    new THREE.SphereGeometry(
+      2,
+      128,
+      128
+    ),
+
+    new THREE.MeshStandardMaterial({
+
+      color: currentPlanetType.color,
+
+      roughness: 1,
+
+      metalness: 0
+
+    })
+
+  );
 
 scene.add(planet);
 
-/* CLOUD LAYER */
-window.clouds = new THREE.Mesh(
-  new THREE.SphereGeometry(2.03, 256, 256),
-  new THREE.MeshStandardMaterial({
-    map: cloudsMap,
-    transparent: true,
-    opacity: 0.4
-  })
-);
+/* =========================
+   ATMOSPHERE (VERY LIGHT)
+========================= */
 
-scene.add(clouds);
+window.atmosphere =
+  new THREE.Mesh(
 
-/* ATMOSPHERE GLOW (fake bloom layer) */
-window.atmosphere = new THREE.Mesh(
-  new THREE.SphereGeometry(2.15, 256, 256),
-  new THREE.MeshBasicMaterial({
-    color: 0x4da6ff,
-    transparent: true,
-    opacity: 0.12
-  })
-);
+    new THREE.SphereGeometry(
+      2.06,
+      128,
+      128
+    ),
+
+    new THREE.MeshBasicMaterial({
+
+      color: currentPlanetType.atmosphere,
+
+      transparent: true,
+
+      opacity: 0.08 /* ⚠️ сильно уменьшили */
+
+    })
+
+  );
 
 scene.add(atmosphere);
 
-/* STARFIELD ULTRA DENSITY */
+/* =========================
+   CLOUDS (optional subtle)
+========================= */
+
+window.clouds =
+  new THREE.Mesh(
+
+    new THREE.SphereGeometry(
+      2.02,
+      128,
+      128
+    ),
+
+    new THREE.MeshStandardMaterial({
+
+      color: 0xffffff,
+
+      transparent: true,
+
+      opacity: 0.12
+
+    })
+
+  );
+
+scene.add(clouds);
+
+/* =========================
+   STARFIELD
+========================= */
+
 const geo = new THREE.BufferGeometry();
 const stars = [];
 
-for (let i = 0; i < 20000; i++) {
-  stars.push((Math.random() - 0.5) * 800);
-  stars.push((Math.random() - 0.5) * 800);
-  stars.push((Math.random() - 0.5) * 800);
+for (let i = 0; i < 15000; i++) {
+
+  stars.push((Math.random() - 0.5) * 600);
+  stars.push((Math.random() - 0.5) * 600);
+  stars.push((Math.random() - 0.5) * 600);
+
 }
 
 geo.setAttribute(
@@ -72,11 +145,33 @@ scene.add(
     geo,
     new THREE.PointsMaterial({
       color: 0xffffff,
-      size: 0.06
+      size: 0.05
     })
   )
 );
 
-/* CITY ROOT */
+/* =========================
+   CITY ROOT
+========================= */
+
 window.cityGroup = new THREE.Group();
 scene.add(cityGroup);
+
+/* =========================
+   SWITCH PLANET FUNCTION
+========================= */
+
+window.switchPlanetVisual = function (index) {
+
+  currentPlanetType =
+    planetTypes[index % planetTypes.length];
+
+  planet.material.color.setHex(
+    currentPlanetType.color
+  );
+
+  atmosphere.material.color.setHex(
+    currentPlanetType.atmosphere
+  );
+
+};
