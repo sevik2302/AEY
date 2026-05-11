@@ -34,24 +34,20 @@ function createBuilding(type,height){
     const group =
         new THREE.Group();
 
-    let bodyColor =
+    let color =
         0xfff7ed;
 
-    if(type === "tower"){
+    if(type==="tower"){
 
-        bodyColor =
-            0xdff4ff;
-
-    }
-
-    if(type === "factory"){
-
-        bodyColor =
-            0xffddb5;
+        color = 0xdff4ff;
 
     }
 
-    /* BODY */
+    if(type==="factory"){
+
+        color = 0xffddb5;
+
+    }
 
     const body =
         new THREE.Mesh(
@@ -64,7 +60,7 @@ function createBuilding(type,height){
 
             new THREE.MeshToonMaterial({
 
-                color:bodyColor
+                color
 
             })
 
@@ -72,7 +68,7 @@ function createBuilding(type,height){
 
     group.add(body);
 
-    /* ROOF */
+    /* roof */
 
     const roof =
         new THREE.Mesh(
@@ -99,16 +95,7 @@ function createBuilding(type,height){
 
     group.add(roof);
 
-    /* WINDOWS */
-
-    const windowMaterial =
-        new THREE.MeshToonMaterial({
-
-            color:0x8ed8ff,
-            emissive:0x4db8ff,
-            emissiveIntensity:0.4
-
-        });
+    /* windows */
 
     const rows =
         Math.max(
@@ -118,77 +105,166 @@ function createBuilding(type,height){
 
     for(let y=0;y<rows;y++){
 
-        for(let side=0;side<4;side++){
+        const win =
+            new THREE.Mesh(
 
-            const win =
-                new THREE.Mesh(
+                new THREE.BoxGeometry(
+                    0.012,
+                    0.012,
+                    0.002
+                ),
 
-                    new THREE.BoxGeometry(
-                        0.012,
-                        0.012,
-                        0.002
-                    ),
+                new THREE.MeshToonMaterial({
 
-                    windowMaterial
+                    color:0x9ae8ff,
+                    emissive:0x4db8ff,
+                    emissiveIntensity:0.5
 
-                );
+                })
 
-            const py =
-                -height/2 +
-                0.04 +
-                y*0.03;
+            );
 
-            if(side===0){
+        win.position.set(
+            0,
+            -height/2 + 0.05 + y*0.03,
+            0.026
+        );
 
-                win.position.set(
-                    0,
-                    py,
-                    0.026
-                );
-
-            }
-
-            if(side===1){
-
-                win.position.set(
-                    0,
-                    py,
-                    -0.026
-                );
-
-            }
-
-            if(side===2){
-
-                win.position.set(
-                    -0.026,
-                    py,
-                    0
-                );
-
-                win.rotation.y =
-                    Math.PI/2;
-
-            }
-
-            if(side===3){
-
-                win.position.set(
-                    0.026,
-                    py,
-                    0
-                );
-
-                win.rotation.y =
-                    Math.PI/2;
-
-            }
-
-            group.add(win);
-
-        }
+        group.add(win);
 
     }
+
+    return group;
+
+}
+
+/* =========================
+   TREE
+========================= */
+
+function createTree(){
+
+    const group =
+        new THREE.Group();
+
+    const trunk =
+        new THREE.Mesh(
+
+            new THREE.CylinderGeometry(
+                0.006,
+                0.008,
+                0.04
+            ),
+
+            new THREE.MeshToonMaterial({
+
+                color:0x8b5a2b
+
+            })
+
+        );
+
+    group.add(trunk);
+
+    const leaves =
+        new THREE.Mesh(
+
+            new THREE.SphereGeometry(
+                0.022,
+                10,
+                10
+            ),
+
+            new THREE.MeshToonMaterial({
+
+                color:0x41c95c
+
+            })
+
+        );
+
+    leaves.position.y =
+        0.03;
+
+    group.add(leaves);
+
+    return group;
+
+}
+
+/* =========================
+   ROAD
+========================= */
+
+function createRoad(){
+
+    return new THREE.Mesh(
+
+        new THREE.BoxGeometry(
+            0.09,
+            0.002,
+            0.018
+        ),
+
+        new THREE.MeshToonMaterial({
+
+            color:0x444444
+
+        })
+
+    );
+
+}
+
+/* =========================
+   DRONE
+========================= */
+
+function createDrone(){
+
+    const group =
+        new THREE.Group();
+
+    const body =
+        new THREE.Mesh(
+
+            new THREE.BoxGeometry(
+                0.04,
+                0.015,
+                0.04
+            ),
+
+            new THREE.MeshToonMaterial({
+
+                color:0xffffff
+
+            })
+
+        );
+
+    group.add(body);
+
+    const light =
+        new THREE.Mesh(
+
+            new THREE.SphereGeometry(
+                0.008,
+                6,
+                6
+            ),
+
+            new THREE.MeshBasicMaterial({
+
+                color:0x00d0ff
+
+            })
+
+        );
+
+    light.position.y =
+        0.012;
+
+    group.add(light);
 
     return group;
 
@@ -242,7 +318,7 @@ function(level=1){
         const rand =
             Math.random();
 
-        if(rand > 0.82){
+        if(rand > 0.8){
 
             type = "tower";
 
@@ -256,18 +332,12 @@ function(level=1){
 
         let height =
             0.10 +
-            Math.random()*0.14 +
-            level*0.006;
+            Math.random()*0.12 +
+            level*0.005;
 
         if(type==="tower"){
 
-            height *= 1.8;
-
-        }
-
-        if(type==="factory"){
-
-            height *= 0.8;
+            height *= 2.0;
 
         }
 
@@ -296,6 +366,113 @@ function(level=1){
         APP.cityGroup.add(
             building
         );
+
+        /* ROAD */
+
+        if(Math.random()>0.35){
+
+            const road =
+                createRoad();
+
+            road.position.copy(
+
+                normal.clone().multiplyScalar(
+                    1.675
+                )
+
+            );
+
+            road.quaternion.setFromUnitVectors(
+
+                new THREE.Vector3(0,1,0),
+
+                normal
+
+            );
+
+            road.rotation.z =
+                Math.random()*Math.PI;
+
+            APP.cityGroup.add(
+                road
+            );
+
+        }
+
+        /* TREE */
+
+        if(Math.random()>0.5){
+
+            const tree =
+                createTree();
+
+            tree.position.copy(
+
+                normal.clone().multiplyScalar(
+                    1.69
+                )
+
+            );
+
+            tree.quaternion.setFromUnitVectors(
+
+                new THREE.Vector3(0,1,0),
+
+                normal
+
+            );
+
+            APP.cityGroup.add(
+                tree
+            );
+
+        }
+
+    }
+
+    /* DRONES */
+
+    for(let i=0;i<5;i++){
+
+        const drone =
+            createDrone();
+
+        drone.userData.angle =
+            Math.random()*Math.PI*2;
+
+        drone.userData.radius =
+            2.2 +
+            Math.random()*0.4;
+
+        APP.scene.add(drone);
+
+        function animateDrone(){
+
+            requestAnimationFrame(
+                animateDrone
+            );
+
+            drone.userData.angle +=
+                0.01;
+
+            drone.position.x =
+                Math.cos(
+                    drone.userData.angle
+                ) * drone.userData.radius;
+
+            drone.position.z =
+                Math.sin(
+                    drone.userData.angle
+                ) * drone.userData.radius;
+
+            drone.position.y =
+                Math.sin(
+                    drone.userData.angle*2
+                ) * 0.25;
+
+        }
+
+        animateDrone();
 
     }
 
