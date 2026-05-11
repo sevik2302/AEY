@@ -3,25 +3,54 @@ window.cityObjects = [];
 const RADIUS = 2.02;
 
 /* =========================
-   CONTINENT MASK (IMPROVED)
+   REALISTIC CONTINENT MASK (EARTH-LIKE SHAPES)
 ========================= */
 
-function landNoise(x, z) {
+/* фиксированные "континентальные пятна" */
+const continents = [
 
-  return (
-    Math.sin(x * 2.2) +
-    Math.cos(z * 2.7) +
-    Math.sin((x + z) * 1.4)
-  );
+  { lat: 0.2, lon: 0.5, size: 0.9 },   // “Евразия”
+  { lat: -0.3, lon: -0.8, size: 0.8 },  // “Америка”
+  { lat: 0.6, lon: -0.2, size: 0.6 },   // “Северная зона”
+  { lat: -0.6, lon: 0.3, size: 0.5 }    // “Южные острова”
 
-}
+];
 
-function isLand(x, z) {
-  return landNoise(x, z) > 0.15;
+function toLatLon(vec) {
+
+  const n = vec.clone().normalize();
+
+  return {
+    lat: Math.asin(n.y),
+    lon: Math.atan2(n.z, n.x)
+  };
+
 }
 
 /* =========================
-   CITY GENERATION (REAL SURFACE)
+   CONTINENT CHECK (REAL MASK)
+========================= */
+
+function isLand(vec) {
+
+  const p = toLatLon(vec);
+
+  for (let c of continents) {
+
+    const d =
+      Math.pow(p.lat - c.lat, 2) +
+      Math.pow(p.lon - c.lon, 2);
+
+    if (d < c.size) return true;
+
+  }
+
+  return false;
+
+}
+
+/* =========================
+   CITY GENERATION (ONLY LAND)
 ========================= */
 
 window.generateCities = function () {
@@ -29,14 +58,14 @@ window.generateCities = function () {
   cityGroup.clear();
   cityObjects = [];
 
-  const cityCount = 7;
+  const cityCount = 8;
 
   for (let i = 0; i < cityCount; i++) {
 
     let base;
 
-    /* ищем только сушу */
-    for (let tries = 0; tries < 20; tries++) {
+    /* ищем сушу */
+    for (let tries = 0; tries < 50; tries++) {
 
       const phi = Math.random() * Math.PI * 2;
       const theta = Math.acos((Math.random() * 2) - 1);
@@ -47,7 +76,8 @@ window.generateCities = function () {
         Math.sin(theta) * Math.sin(phi)
       ).multiplyScalar(RADIUS);
 
-      if (isLand(base.x, base.z)) break;
+      if (isLand(base)) break;
+
     }
 
     const normal = base.clone().normalize();
@@ -57,41 +87,35 @@ window.generateCities = function () {
       buildings: []
     };
 
-    /* =========================
-       DENSE CITY CLUSTER
-    ========================= */
-
-    const density = 35;
+    const density = 40;
 
     for (let j = 0; j < density; j++) {
 
-      /* height progression */
       const height =
-        0.03 +
-        Math.pow(Math.random(), 2) * 0.8;
+        0.02 + Math.pow(Math.random(), 2) * 0.9;
 
-      const isSkyscraper = Math.random() > 0.92;
+      const isSkyscraper = Math.random() > 0.93;
 
       const mesh = new THREE.Mesh(
 
         new THREE.BoxGeometry(0.02, height, 0.02),
 
         new THREE.MeshStandardMaterial({
-          color: isSkyscraper ? 0xaadfff : 0xdcdcdc,
+          color: isSkyscraper ? 0xaadfff : 0xd9d9d9,
           emissive: 0x000000
         })
 
       );
 
       /* =========================
-         SPREAD ON SPHERE SURFACE
+         SPREAD ON SURFACE
       ========================= */
 
       const tangent = new THREE.Vector3(
         Math.random() - 0.5,
         Math.random() - 0.5,
         Math.random() - 0.5
-      ).normalize().multiplyScalar(0.15);
+      ).normalize().multiplyScalar(0.12);
 
       const pos = base.clone()
         .add(tangent)
@@ -99,22 +123,24 @@ window.generateCities = function () {
         .multiplyScalar(RADIUS);
 
       /* =========================
-         NORMAL ALIGNMENT (KEY FIX)
+         HEDGEHOG ALIGNMENT
       ========================= */
 
       const finalPos =
-        pos.clone()
-        .add(normal.clone().multiplyScalar(height / 2));
+        pos.clone().add(
+          normal.clone().multiplyScalar(height / 2)
+        );
 
       mesh.position.copy(finalPos);
 
       mesh.lookAt(pos.clone().add(normal));
 
-      mesh.userData.baseHeight = height;
       mesh.userData.normal = normal;
+      mesh.userData.baseHeight = height;
 
       cityGroup.add(mesh);
       city.buildings.push(mesh);
+
     }
 
     cityObjects.push(city);
@@ -131,24 +157,17 @@ window.growCities = function (level) {
 
     city.buildings.forEach(b => {
 
-      const scale = 1 + level * 0.18;
+      const scale = 1 + level * 0.2;
 
       b.scale.y = scale;
 
-      /* push outward along normal */
-      const n = b.userData.normal;
-
-      b.position.addScaledVector(n, 0);
-
-      /* emissive night effect */
-      if (level > 2) {
-        b.material.emissive.setHex(0x111122);
-        b.material.emissiveIntensity = 0.6;
+      if (level > 3) {
+        b.material.emissive.setHex(0x111133);
+        b.material.emissiveIntensity = 0.5;
       }
 
-      /* skyscraper boost */
-      if (level > 6 && Math.random() > 0.97) {
-        b.scale.y *= 2.5;
+      if (level > 7 && Math.random() > 0.96) {
+        b.scale.y *= 2.8;
       }
 
     });
@@ -157,10 +176,7 @@ window.growCities = function (level) {
 
 };
 
-/* =========================
-   RESET
-========================= */
-
+/* RESET */
 window.resetCities = function () {
   generateCities();
 };
