@@ -3,45 +3,33 @@ window.cityObjects = [];
 const RADIUS = 2.02;
 
 /* =========================
-   REALISTIC CONTINENT MASK (EARTH-LIKE SHAPES)
+   REAL CONTINENT SYSTEM (STABLE EARTH-LIKE BLOBS)
 ========================= */
 
-/* фиксированные "континентальные пятна" */
-const continents = [
+/*
+   Это НЕ шум.
+   Это фиксированные "континентальные массы",
+   которые дают стабильный результат всегда.
+*/
 
-  { lat: 0.2, lon: 0.5, size: 0.9 },   // “Евразия”
-  { lat: -0.3, lon: -0.8, size: 0.8 },  // “Америка”
-  { lat: 0.6, lon: -0.2, size: 0.6 },   // “Северная зона”
-  { lat: -0.6, lon: 0.3, size: 0.5 }    // “Южные острова”
+const landBlobs = [
+
+  new THREE.Vector3( 0.7,  0.3,  0.2).normalize(),
+  new THREE.Vector3(-0.6, -0.2,  0.4).normalize(),
+  new THREE.Vector3( 0.1,  0.8, -0.3).normalize(),
+  new THREE.Vector3(-0.2, -0.7, -0.6).normalize()
 
 ];
 
-function toLatLon(vec) {
+function isLand(vec) {
 
   const n = vec.clone().normalize();
 
-  return {
-    lat: Math.asin(n.y),
-    lon: Math.atan2(n.z, n.x)
-  };
+  for (let b of landBlobs) {
 
-}
+    const d = n.dot(b); // similarity on sphere
 
-/* =========================
-   CONTINENT CHECK (REAL MASK)
-========================= */
-
-function isLand(vec) {
-
-  const p = toLatLon(vec);
-
-  for (let c of continents) {
-
-    const d =
-      Math.pow(p.lat - c.lat, 2) +
-      Math.pow(p.lon - c.lon, 2);
-
-    if (d < c.size) return true;
+    if (d > 0.65) return true;
 
   }
 
@@ -50,7 +38,7 @@ function isLand(vec) {
 }
 
 /* =========================
-   CITY GENERATION (ONLY LAND)
+   SAFE CITY GENERATION
 ========================= */
 
 window.generateCities = function () {
@@ -62,15 +50,15 @@ window.generateCities = function () {
 
   for (let i = 0; i < cityCount; i++) {
 
-    let base;
+    let base = new THREE.Vector3();
 
-    /* ищем сушу */
-    for (let tries = 0; tries < 50; tries++) {
+    /* ищем только сушу */
+    for (let tries = 0; tries < 100; tries++) {
 
       const phi = Math.random() * Math.PI * 2;
       const theta = Math.acos((Math.random() * 2) - 1);
 
-      base = new THREE.Vector3(
+      base.set(
         Math.sin(theta) * Math.cos(phi),
         Math.cos(theta),
         Math.sin(theta) * Math.sin(phi)
@@ -87,35 +75,35 @@ window.generateCities = function () {
       buildings: []
     };
 
-    const density = 40;
+    const density = 45;
 
     for (let j = 0; j < density; j++) {
 
       const height =
-        0.02 + Math.pow(Math.random(), 2) * 0.9;
+        0.03 + Math.pow(Math.random(), 2) * 1.0;
 
-      const isSkyscraper = Math.random() > 0.93;
+      const isSkyscraper = Math.random() > 0.94;
 
       const mesh = new THREE.Mesh(
 
         new THREE.BoxGeometry(0.02, height, 0.02),
 
         new THREE.MeshStandardMaterial({
-          color: isSkyscraper ? 0xaadfff : 0xd9d9d9,
+          color: isSkyscraper ? 0xaadfff : 0xdcdcdc,
           emissive: 0x000000
         })
 
       );
 
       /* =========================
-         SPREAD ON SURFACE
+         SPHERE SURFACE POSITION
       ========================= */
 
       const tangent = new THREE.Vector3(
         Math.random() - 0.5,
         Math.random() - 0.5,
         Math.random() - 0.5
-      ).normalize().multiplyScalar(0.12);
+      ).normalize().multiplyScalar(0.1);
 
       const pos = base.clone()
         .add(tangent)
@@ -123,20 +111,30 @@ window.generateCities = function () {
         .multiplyScalar(RADIUS);
 
       /* =========================
-         HEDGEHOG ALIGNMENT
+         FIX: PROPER VERTICAL ALIGNMENT
       ========================= */
 
-      const finalPos =
+      mesh.position.copy(
         pos.clone().add(
           normal.clone().multiplyScalar(height / 2)
-        );
+        )
+      );
 
-      mesh.position.copy(finalPos);
+      /*
+        CRITICAL FIX:
+        убираем lookAt (он ломал здания)
+        используем quaternion alignment
+      */
 
-      mesh.lookAt(pos.clone().add(normal));
+      const up = normal.clone();
+      const axis = new THREE.Vector3(0, 1, 0);
+
+      const quat = new THREE.Quaternion()
+        .setFromUnitVectors(axis, up);
+
+      mesh.quaternion.copy(quat);
 
       mesh.userData.normal = normal;
-      mesh.userData.baseHeight = height;
 
       cityGroup.add(mesh);
       city.buildings.push(mesh);
@@ -148,7 +146,7 @@ window.generateCities = function () {
 };
 
 /* =========================
-   GROW SYSTEM (REAL EVOLUTION)
+   GROW SYSTEM (CLEAN)
 ========================= */
 
 window.growCities = function (level) {
@@ -157,17 +155,17 @@ window.growCities = function (level) {
 
     city.buildings.forEach(b => {
 
-      const scale = 1 + level * 0.2;
+      const scale = 1 + level * 0.22;
 
       b.scale.y = scale;
 
       if (level > 3) {
         b.material.emissive.setHex(0x111133);
-        b.material.emissiveIntensity = 0.5;
+        b.material.emissiveIntensity = 0.6;
       }
 
-      if (level > 7 && Math.random() > 0.96) {
-        b.scale.y *= 2.8;
+      if (level > 6 && Math.random() > 0.97) {
+        b.scale.y *= 2.5;
       }
 
     });
@@ -181,5 +179,7 @@ window.resetCities = function () {
   generateCities();
 };
 
-/* INIT */
-generateCities();
+/* INIT SAFE */
+setTimeout(() => {
+  generateCities();
+}, 200);
