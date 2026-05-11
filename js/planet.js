@@ -12,8 +12,8 @@ APP.scene.add(
 const geometry =
     new THREE.SphereGeometry(
         1.65,
-        220,
-        220
+        240,
+        240
     );
 
 const position =
@@ -29,46 +29,100 @@ window.LAND_AREAS = [];
 
 const continents = [
 
+    /* north america */
     {
-        x:-0.55,
-        y:0.28,
-        z:0.45,
+        x:-0.58,
+        y:0.30,
+        z:0.42,
         radius:0.42
     },
 
+    /* south america */
     {
         x:-0.42,
         y:-0.42,
-        z:0.38,
-        radius:0.28
+        z:0.34,
+        radius:0.26
     },
 
+    /* europe */
     {
-        x:0.18,
-        y:0.36,
-        z:0.55,
+        x:0.14,
+        y:0.38,
+        z:0.58,
         radius:0.18
     },
 
+    /* africa */
     {
-        x:0.18,
-        y:-0.08,
-        z:0.52,
-        radius:0.32
+        x:0.16,
+        y:-0.06,
+        z:0.54,
+        radius:0.30
     },
 
+    /* asia */
     {
-        x:0.62,
+        x:0.64,
         y:0.16,
-        z:0.12,
+        z:0.10,
         radius:0.52
     },
 
+    /* australia */
     {
         x:0.62,
         y:-0.48,
         z:-0.12,
         radius:0.18
+    },
+
+    /* greenland */
+    {
+        x:-0.18,
+        y:0.66,
+        z:0.36,
+        radius:0.13
+    },
+
+    /* japan islands */
+    {
+        x:0.82,
+        y:0.18,
+        z:0.02,
+        radius:0.08
+    },
+
+    /* uk */
+    {
+        x:0.02,
+        y:0.42,
+        z:0.62,
+        radius:0.07
+    },
+
+    /* indonesia */
+    {
+        x:0.56,
+        y:-0.14,
+        z:0.18,
+        radius:0.14
+    },
+
+    /* madagascar */
+    {
+        x:0.30,
+        y:-0.34,
+        z:0.42,
+        radius:0.08
+    },
+
+    /* scandinavia */
+    {
+        x:0.10,
+        y:0.58,
+        z:0.42,
+        radius:0.10
     }
 
 ];
@@ -148,7 +202,7 @@ for(let i=0;i<position.count;i++){
 
         const raise =
             1 +
-            land*0.03;
+            land*0.028;
 
         x *= raise;
         y *= raise;
@@ -183,10 +237,6 @@ for(let i=0;i<position.count;i++){
 
 }
 
-/* =========================
-   COLORS
-========================= */
-
 geometry.setAttribute(
 
     "color",
@@ -194,6 +244,7 @@ geometry.setAttribute(
     new THREE.Float32BufferAttribute(
         colors,
         3
+
     )
 
 );
@@ -238,7 +289,7 @@ const rim =
 
             color:0xffffff,
             transparent:true,
-            opacity:0.05,
+            opacity:0.06,
             side:THREE.BackSide
 
         })
@@ -250,7 +301,7 @@ APP.planetGroup.add(
 );
 
 /* =========================
-   CLOUD LAYER
+   CLOUDS
 ========================= */
 
 APP.cloudLayer =
