@@ -4,65 +4,77 @@ APP.scene.add(APP.planetGroup);
 /* =========================
    WATER PLANET
 ========================= */
-
 const water = new THREE.Mesh(
     new THREE.SphereGeometry(1.75, 96, 96),
     new THREE.MeshToonMaterial({
-        color: 0x1f6fff   // глубокий синий
+        color: 0x1f6fff
     })
 );
-
 APP.planetGroup.add(water);
 
 /* =========================
-   CONTINENTS (VOLUMETRIC)
+   CONTINENTS (BIG LANDMASSES)
 ========================= */
 
 window.LAND_POINTS = [];
 
 const landMaterial = new THREE.MeshToonMaterial({
-    color: 0x35e06f   // яркий зелёный
+    color: 0x35e06f
 });
 
-/* делаем "острова-объёмы" */
-for (let i = 0; i < 22; i++) {
+/* 🔥 упрощённые "континенты" */
+const CONTINENTS = [
+    { dir: new THREE.Vector3( 0.9,  0.2,  0.3), size: 0.55 },
+    { dir: new THREE.Vector3(-0.8,  0.1,  0.4), size: 0.6 },
+    { dir: new THREE.Vector3( 0.2,  0.8, -0.3), size: 0.5 },
+    { dir: new THREE.Vector3(-0.3, -0.7,  0.5), size: 0.65 },
+    { dir: new THREE.Vector3( 0.4, -0.2, -0.9), size: 0.45 },
+    { dir: new THREE.Vector3(-0.6,  0.6, -0.2), size: 0.5 },
+    { dir: new THREE.Vector3( 0.1, -0.9,  0.3), size: 0.55 }
+];
 
-    const island = new THREE.Mesh(
-        new THREE.SphereGeometry(
-            0.22 + Math.random() * 0.35,
-            18,
-            18
-        ),
-        landMaterial
-    );
+CONTINENTS.forEach(c => {
 
-    const phi = Math.random() * Math.PI * 2;
-    const theta = Math.random() * Math.PI;
+    const group = new THREE.Group();
 
-    const dir = new THREE.Vector3(
-        Math.sin(theta) * Math.cos(phi),
-        Math.cos(theta),
-        Math.sin(theta) * Math.sin(phi)
-    );
+    const base = c.dir.clone().normalize();
 
-    const radius = 1.72 + Math.random() * 0.03;
+    /* делаем "неровный материк" из нескольких пятен */
+    for (let i = 0; i < 6; i++) {
 
-    island.position.copy(dir.multiplyScalar(radius));
+        const jitter = new THREE.Vector3(
+            (Math.random()-0.5)*0.3,
+            (Math.random()-0.5)*0.3,
+            (Math.random()-0.5)*0.3
+        );
 
-    /* чуть выпирает наружу (объём суши) */
-    island.lookAt(0, 0, 0);
-    island.scale.set(
-        1,
-        0.6 + Math.random() * 0.6,
-        1
-    );
+        const dir = base.clone().add(jitter).normalize();
 
-    APP.planetGroup.add(island);
+        const island = new THREE.Mesh(
+            new THREE.SphereGeometry(
+                c.size * (0.25 + Math.random()*0.25),
+                24,
+                24
+            ),
+            landMaterial
+        );
 
-    LAND_POINTS.push(island.position.clone().normalize());
-}
+        const radius = 1.72;
 
-/* =========================
-   NO ATMOSPHERE (ВАЖНО)
-========================= */
-// атмосфера УДАЛЕНА полностью
+        island.position.copy(dir.multiplyScalar(radius));
+
+        island.scale.set(
+            1.2 + Math.random()*0.6,
+            0.6 + Math.random()*0.4,
+            1.2 + Math.random()*0.6
+        );
+
+        island.lookAt(0,0,0);
+
+        group.add(island);
+
+        LAND_POINTS.push(island.position.clone().normalize());
+    }
+
+    APP.planetGroup.add(group);
+});
