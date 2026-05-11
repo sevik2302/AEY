@@ -1,9 +1,3 @@
-window.cityObjects = [];
-
-/* =========================
-   CITY GENERATION (ON SPHERE SURFACE)
-========================= */
-
 window.generateCities = function () {
 
   cityGroup.clear();
@@ -18,122 +12,61 @@ window.generateCities = function () {
     const phi = Math.random() * Math.PI * 2;
     const theta = Math.acos((Math.random() * 2) - 1);
 
-    const basePos = new THREE.Vector3(
-
-      radius * Math.sin(theta) * Math.cos(phi),
-
-      radius * Math.cos(theta),
-
-      radius * Math.sin(theta) * Math.sin(phi)
-
-    );
+    /* 🎯 точка на сфере */
+    const base = new THREE.Vector3(
+      Math.sin(theta) * Math.cos(phi),
+      Math.cos(theta),
+      Math.sin(theta) * Math.sin(phi)
+    ).multiplyScalar(radius);
 
     const city = {
-      base: basePos,
+      base,
       buildings: []
     };
 
-    const normal = basePos.clone().normalize();
+    const normal = base.clone().normalize();
 
-    const baseBuildings = 14;
-
-    for (let j = 0; j < baseBuildings; j++) {
-
-      const height = 0.05;
+    for (let j = 0; j < 18; j++) {
 
       const mesh = new THREE.Mesh(
 
-        new THREE.BoxGeometry(0.02, height, 0.02),
+        new THREE.BoxGeometry(0.02, 0.05, 0.02),
 
         new THREE.MeshStandardMaterial({
-          color: 0xdcdcdc,
-          emissive: 0x000000
+          color: 0xdcdcdc
         })
 
       );
 
-      /* =========================
-         POSITION ON SPHERE (IMPORTANT FIX)
-      ========================= */
+      /* 🎯 random offset по поверхности */
+      const tangent = new THREE.Vector3(
+        (Math.random() - 0.5),
+        (Math.random() - 0.5),
+        (Math.random() - 0.5)
+      ).normalize().multiplyScalar(0.1);
 
-      const offset = new THREE.Vector3(
+      /* 🎯 правильная позиция */
+      const pos = base.clone()
+        .add(tangent)
+        .normalize()
+        .multiplyScalar(radius);
 
-        (Math.random() - 0.5) * 0.12,
-        (Math.random() - 0.5) * 0.12,
-        (Math.random() - 0.5) * 0.12
+      /* 🎯 ВЫТЯГИВАЕМ НАРУЖУ ПО НОРМАЛИ */
+      const height = 0.05;
 
-      );
+      mesh.position.copy(pos.clone().add(normal.clone().multiplyScalar(height / 2)));
 
-      const pos = basePos.clone().add(offset);
+      /* 🎯 ОРИЕНТАЦИЯ ВНЕШУ */
+      mesh.lookAt(pos.clone().add(normal));
 
-      mesh.position.copy(pos);
-
-      /* =========================
-         ALIGN TO SURFACE NORMAL (KEY FIX)
-      ========================= */
-
-      mesh.lookAt(
-
-        pos.clone().add(normal)
-
-      );
-
-      mesh.translateY(height / 2);
-
+      mesh.userData.normal = normal;
+      mesh.userData.basePos = pos;
       mesh.userData.baseHeight = height;
 
       cityGroup.add(mesh);
       city.buildings.push(mesh);
-
     }
 
     cityObjects.push(city);
   }
 };
-
-/* =========================
-   GROW SYSTEM (REALISTIC HEDGEHOG GROWTH)
-========================= */
-
-window.growCities = function (level) {
-
-  cityObjects.forEach(city => {
-
-    city.buildings.forEach(b => {
-
-      const scale = 1 + level * 0.15;
-
-      b.scale.y = scale;
-
-      b.position.copy(
-        b.position.clone().add(
-          b.getWorldDirection(new THREE.Vector3()).multiplyScalar(0)
-        )
-      );
-
-      /* skyscraper chance later */
-
-      if (level > 5 && Math.random() > 0.96) {
-        b.scale.y *= 3;
-      }
-
-      /* emissive night lights */
-
-      if (level > 3) {
-        b.material.emissive.setHex(0x111122);
-        b.material.emissiveIntensity = 0.5;
-      }
-
-    });
-
-  });
-
-};
-
-/* RESET */
-window.resetCities = function () {
-  generateCities();
-};
-
-/* INIT */
-generateCities();
