@@ -2,157 +2,57 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>AEY GALAXY</title>
+<title>AEY GALAXY FINAL AAA MASTER</title>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+
+<!-- POSTPROCESSING -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/postprocessing/EffectComposer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/postprocessing/RenderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+
+<script src="js/renderer.js"></script>
+<script src="js/planets.js"></script>
+<script src="js/economy.js"></script>
 
 <style>
-
-body{
-  margin:0;
-  overflow:hidden;
-  background:black;
-  font-family:Arial;
+body {
+  margin: 0;
+  overflow: hidden;
+  background: black;
+  font-family: Arial;
 }
 
-/* ================= UI ================= */
-
-#topbar{
-  position:fixed;
-  top:20px;
-  left:20px;
-  z-index:20;
-  color:white;
-  background:rgba(10,10,20,0.75);
-  padding:20px;
-  border-radius:18px;
-  backdrop-filter:blur(12px);
-  min-width:280px;
-  border:1px solid rgba(255,255,255,0.08);
+#ui {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 10;
+  color: white;
 }
 
-#logo{
-  font-size:26px;
-  font-weight:bold;
-  margin-bottom:10px;
+button {
+  padding: 14px 22px;
+  margin: 6px;
+  border-radius: 12px;
+  border: none;
+  background: #151515;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
 }
-
-.stat{
-  margin-top:6px;
-  font-size:15px;
-}
-
-/* ================= PROGRESS ================= */
-
-#progress{
-  width:100%;
-  height:10px;
-  background:rgba(255,255,255,0.08);
-  border-radius:20px;
-  margin-top:14px;
-  overflow:hidden;
-}
-
-#progressFill{
-  height:100%;
-  width:0%;
-  background:linear-gradient(90deg,#00c6ff,#0072ff);
-}
-
-/* ================= BUTTONS ================= */
-
-#buttons{
-  position:fixed;
-  bottom:30px;
-  left:50%;
-  transform:translateX(-50%);
-  display:flex;
-  gap:16px;
-  z-index:20;
-}
-
-button{
-
-  padding:18px 34px;
-
-  border:none;
-
-  border-radius:16px;
-
-  background:rgba(20,20,35,0.9);
-
-  color:white;
-
-  font-size:16px;
-
-  cursor:pointer;
-
-  transition:0.2s;
-
-  min-width:150px;
-
-  border:1px solid rgba(255,255,255,0.08);
-
-  backdrop-filter:blur(10px);
-
-}
-
-button:hover{
-  transform:scale(1.08);
-  background:rgba(60,60,100,0.9);
-}
-
-button:active{
-  transform:scale(0.98);
-}
-
 </style>
 
 </head>
 
 <body>
 
-<!-- UI -->
-<div id="topbar">
-
-  <div id="logo">AEY GALAXY</div>
-
-  <div class="stat" id="planetText">Planet</div>
-  <div class="stat" id="cityText">City Level: 1</div>
-  <div class="stat" id="fragmentText">Fragments: 0</div>
-  <div class="stat" id="completionText">Completion: 0%</div>
-  <div class="stat" id="costText">Cost: 100</div>
-
-  <div id="progress">
-    <div id="progressFill"></div>
-  </div>
-
+<div id="ui">
+  <button onclick="tap()">TAP</button>
+  <button onclick="build()">BUILD</button>
+  <button onclick="nextPlanet()">NEXT PLANET</button>
+  <div id="info"></div>
 </div>
-
-<!-- BUTTONS -->
-<div id="buttons">
-
-  <button onclick="tapFragments()">
-    TAP +1
-  </button>
-
-  <button onclick="buildCityUpgrade()">
-    BUILD
-  </button>
-
-  <button onclick="nextPlanet()">
-    NEXT
-  </button>
-
-</div>
-
-<!-- THREE -->
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-
-<!-- GAME -->
-<script src="js/renderer.js"></script>
-<script src="js/planets.js"></script>
-<script src="js/economy.js"></script>
-<script src="js/game.js"></script>
-<script src="js/ui.js"></script>
 
 </body>
 </html>
