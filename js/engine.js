@@ -66,8 +66,8 @@ function animate(){
 
     requestAnimationFrame(animate);
 
-    if(APP.planet){
-        APP.planet.rotation.y += 0.0012;
+    if(APP.planetGroup){
+        APP.planetGroup.rotation.y += 0.0012;
     }
 
     if(APP.cityGroup){
