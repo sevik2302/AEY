@@ -1,6 +1,7 @@
 window.APP = {};
 
-APP.scene = new THREE.Scene();
+APP.scene =
+    new THREE.Scene();
 
 /* =========================
    CAMERA
@@ -9,12 +10,16 @@ APP.scene = new THREE.Scene();
 APP.camera =
     new THREE.PerspectiveCamera(
         45,
-        innerWidth / innerHeight,
+        innerWidth/innerHeight,
         0.1,
         1000
     );
 
-APP.camera.position.set(0,0,8.8);
+APP.camera.position.set(
+    0,
+    0,
+    8.8
+);
 
 /* =========================
    RENDERER
@@ -22,8 +27,10 @@ APP.camera.position.set(0,0,8.8);
 
 APP.renderer =
     new THREE.WebGLRenderer({
+
         antialias:true,
         alpha:true
+
     });
 
 APP.renderer.setSize(
@@ -40,157 +47,212 @@ document.body.appendChild(
 );
 
 /* =========================
-   LIGHTING
+   LIGHTS
 ========================= */
-
-/* ambient */
-
-const ambient =
-    new THREE.AmbientLight(
-        0xffffff,
-        1.2
-    );
-
-APP.scene.add(ambient);
-
-/* sun */
 
 APP.sun =
     new THREE.DirectionalLight(
         0xffffff,
-        2.4
+        2.8
     );
 
 APP.sun.position.set(
     5,
-    3,
+    2,
     5
 );
 
-APP.scene.add(APP.sun);
-
-/* blue fill */
-
-const fill =
-    new THREE.DirectionalLight(
-        0x6bc8ff,
-        1.2
-    );
-
-fill.position.set(
-    -5,
-    -2,
-    -5
+APP.scene.add(
+    APP.sun
 );
 
-APP.scene.add(fill);
-
-/* =========================
-   STARS
-========================= */
-
-const starsGeometry =
-    new THREE.BufferGeometry();
-
-const stars = [];
-
-for(let i=0;i<2200;i++){
-
-    stars.push(
-
-        (Math.random()-0.5)*140,
-        (Math.random()-0.5)*140,
-        (Math.random()-0.5)*140
-
+const ambient =
+    new THREE.AmbientLight(
+        0xffffff,
+        0.8
     );
 
-}
-
-starsGeometry.setAttribute(
-
-    "position",
-
-    new THREE.Float32BufferAttribute(
-        stars,
-        3
-    )
-
+APP.scene.add(
+    ambient
 );
 
-const starsMaterial =
-    new THREE.PointsMaterial({
-
-        color:0xffffff,
-        size:0.12
-
-    });
-
-APP.stars =
-    new THREE.Points(
-        starsGeometry,
-        starsMaterial
-    );
-
-APP.scene.add(APP.stars);
-
 /* =========================
-   CLOUDS
+   PARALLAX STARS
 ========================= */
 
-APP.clouds =
-    new THREE.Group();
+APP.starLayers = [];
 
-APP.scene.add(APP.clouds);
+for(let l=0;l<3;l++){
 
-function createCloud(x,y,s){
+    const geo =
+        new THREE.BufferGeometry();
 
-    const group =
-        new THREE.Group();
+    const stars = [];
 
-    for(let i=0;i<5;i++){
+    for(let i=0;i<1200;i++){
 
-        const cloud =
-            new THREE.Mesh(
+        stars.push(
 
-                new THREE.SphereGeometry(
-                    0.24 + Math.random()*0.12,
-                    18,
-                    18
-                ),
+            (Math.random()-0.5)*140,
+            (Math.random()-0.5)*140,
+            (Math.random()-0.5)*140
 
-                new THREE.MeshToonMaterial({
-
-                    color:0xffffff,
-                    transparent:true,
-                    opacity:0.95
-
-                })
-
-            );
-
-        cloud.position.x =
-            i * 0.18;
-
-        group.add(cloud);
+        );
 
     }
 
-    group.position.set(
-        x,
-        y,
-        -4
+    geo.setAttribute(
+
+        "position",
+
+        new THREE.Float32BufferAttribute(
+            stars,
+            3
+        )
+
     );
 
-    group.scale.setScalar(s);
+    const mat =
+        new THREE.PointsMaterial({
 
-    APP.clouds.add(group);
+            color:0xffffff,
+            size:0.08 + l*0.04
+
+        });
+
+    const points =
+        new THREE.Points(
+            geo,
+            mat
+        );
+
+    APP.scene.add(points);
+
+    APP.starLayers.push(points);
 
 }
 
-createCloud(-5,3,1.2);
-createCloud(4,2,0.9);
-createCloud(-5,-3,1.3);
-createCloud(5,-2,1.1);
+/* =========================
+   SATELLITES
+========================= */
+
+APP.satellites = [];
+
+for(let i=0;i<2;i++){
+
+    const sat =
+        new THREE.Group();
+
+    const body =
+        new THREE.Mesh(
+
+            new THREE.BoxGeometry(
+                0.06,
+                0.04,
+                0.04
+            ),
+
+            new THREE.MeshToonMaterial({
+
+                color:0xffffff
+
+            })
+
+        );
+
+    sat.add(body);
+
+    const panel =
+        new THREE.Mesh(
+
+            new THREE.BoxGeometry(
+                0.12,
+                0.01,
+                0.05
+            ),
+
+            new THREE.MeshToonMaterial({
+
+                color:0x4db8ff
+
+            })
+
+        );
+
+    sat.add(panel);
+
+    sat.userData.angle =
+        Math.random()*Math.PI*2;
+
+    sat.userData.radius =
+        2.8 + i*0.4;
+
+    APP.scene.add(sat);
+
+    APP.satellites.push(sat);
+
+}
+
+/* =========================
+   PLANES
+========================= */
+
+APP.planes = [];
+
+for(let i=0;i<3;i++){
+
+    const plane =
+        new THREE.Group();
+
+    const body =
+        new THREE.Mesh(
+
+            new THREE.BoxGeometry(
+                0.06,
+                0.02,
+                0.02
+            ),
+
+            new THREE.MeshToonMaterial({
+
+                color:0xffffff
+
+            })
+
+        );
+
+    plane.add(body);
+
+    const wing =
+        new THREE.Mesh(
+
+            new THREE.BoxGeometry(
+                0.02,
+                0.002,
+                0.08
+            ),
+
+            new THREE.MeshToonMaterial({
+
+                color:0xff5555
+
+            })
+
+        );
+
+    plane.add(wing);
+
+    plane.userData.angle =
+        Math.random()*Math.PI*2;
+
+    plane.userData.radius =
+        2.3 + Math.random()*0.3;
+
+    APP.scene.add(plane);
+
+    APP.planes.push(plane);
+
+}
 
 /* =========================
    ANIMATE
@@ -202,19 +264,88 @@ function animate(){
         animate
     );
 
+    /* planet */
+
     if(APP.planetGroup){
 
-        APP.planetGroup.rotation.y += 0.0014;
+        APP.planetGroup.rotation.y +=
+            0.0015;
 
     }
+
+    /* clouds */
 
     if(APP.cloudLayer){
 
-        APP.cloudLayer.rotation.y += 0.0018;
+        APP.cloudLayer.rotation.y +=
+            0.0019;
 
     }
 
-    APP.stars.rotation.y += 0.00012;
+    /* stars */
+
+    APP.starLayers.forEach((s,i)=>{
+
+        s.rotation.y +=
+            0.00005 + i*0.00005;
+
+    });
+
+    /* sun cycle */
+
+    APP.sun.position.x =
+        Math.sin(DAY_TIME)*5;
+
+    APP.sun.position.z =
+        Math.cos(DAY_TIME)*5;
+
+    /* satellites */
+
+    APP.satellites.forEach((s,i)=>{
+
+        s.userData.angle +=
+            0.004 + i*0.001;
+
+        s.position.x =
+            Math.cos(
+                s.userData.angle
+            ) * s.userData.radius;
+
+        s.position.z =
+            Math.sin(
+                s.userData.angle
+            ) * s.userData.radius;
+
+        s.position.y =
+            Math.sin(
+                s.userData.angle*2
+            ) * 0.6;
+
+    });
+
+    /* planes */
+
+    APP.planes.forEach((p,i)=>{
+
+        p.userData.angle +=
+            0.01 + i*0.002;
+
+        p.position.x =
+            Math.cos(
+                p.userData.angle
+            ) * p.userData.radius;
+
+        p.position.z =
+            Math.sin(
+                p.userData.angle
+            ) * p.userData.radius;
+
+        p.position.y =
+            Math.sin(
+                p.userData.angle*2
+            ) * 0.2;
+
+    });
 
     APP.renderer.render(
         APP.scene,
