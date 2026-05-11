@@ -1,13 +1,13 @@
 window.game = {
 
-  cityLevel:1,
-  fragments:0,
-  completion:0,
-  buildCost:100,
+  cityLevel: 1,
+  fragments: 0,
+  completion: 0,
+  buildCost: 10,   /* ⚡ было 100 → теперь 10 */
 
-  currentPlanet:0,
+  currentPlanet: 0,
 
-  planets:[
+  planets: [
     "Terra Prime",
     "Nova Lux",
     "Cryon",
@@ -18,84 +18,61 @@ window.game = {
 };
 
 /* =========================
-   TAP (ГАРАНТИРОВАННО РАБОТАЕТ)
+   TAP (x10 BOOST)
 ========================= */
 
-window.tapFragments =
-  function(){
+window.tapFragments = function () {
 
-    game.fragments += 1;
+  game.fragments += 10; /* ⚡ было 1 → теперь 10 */
 
-    forceUI();
+  updateUI();
 
-  };
+};
 
 /* =========================
-   BUILD
+   BUILD (FAST PROGRESSION)
 ========================= */
 
-window.buildCityUpgrade =
-  function(){
+window.buildCityUpgrade = function () {
 
-    if(game.fragments < game.buildCost){
-      return;
-    }
+  if (game.fragments < game.buildCost) return;
 
-    game.fragments -= game.buildCost;
+  game.fragments -= game.buildCost;
 
-    game.cityLevel++;
+  game.cityLevel++;
 
-    game.completion += 10;
+  game.completion += 25; /* ⚡ было 10 → теперь 25% */
 
-    if(game.completion > 100){
-      game.completion = 100;
-    }
+  if (game.completion > 100) game.completion = 100;
 
-    game.buildCost =
-      Math.floor(game.buildCost * 1.4);
+  game.buildCost = Math.floor(game.buildCost * 1.2); /* быстрее рост */
 
-    growCities(game.cityLevel);
+  growCities(game.cityLevel);
 
-    forceUI();
+  updateUI();
 
-  };
+};
 
 /* =========================
-   NEXT PLANET
+   NEXT PLANET (TEST MODE)
 ========================= */
 
-window.nextPlanet =
-  function(){
+window.nextPlanet = function () {
 
-    if(game.completion < 100){
-      return;
-    }
+  /* ⚡ убираем блок 100% для теста */
+  game.currentPlanet++;
 
-    game.currentPlanet++;
-
-    if(game.currentPlanet >= game.planets.length){
-      game.currentPlanet = 0;
-    }
-
-    game.cityLevel = 1;
-    game.fragments = 0;
-    game.completion = 0;
-    game.buildCost = 100;
-
-    resetCities();
-
-    forceUI();
-
-  };
-
-/* =========================
-   SAFE UI CALL
-========================= */
-
-function forceUI(){
-
-  if(typeof updateUI === "function"){
-    updateUI();
+  if (game.currentPlanet >= game.planets.length) {
+    game.currentPlanet = 0;
   }
 
-}
+  game.cityLevel = 1;
+  game.fragments = 0;
+  game.completion = 0;
+  game.buildCost = 10;
+
+  resetCities();
+
+  updateUI();
+
+};
