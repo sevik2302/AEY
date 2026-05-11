@@ -11,25 +11,22 @@ const stats =
 
 setTimeout(async ()=>{
 
-    if(window.loadPlayer){
+    await loadPlayer();
 
-        await loadPlayer();
+    fragments =
+        player.fragments;
 
-        fragments =
-            player.fragments;
+    level =
+        player.level;
 
-        level =
-            player.level;
+    population =
+        player.population;
 
-        population =
-            player.population;
+    spawnCities(level);
 
-        spawnCities(level);
+    updateUI();
 
-        updateUI();
-    }
-
-},600);
+},500);
 
 /* UI */
 
@@ -54,13 +51,13 @@ function updateUI(){
 
 }
 
-/* TAP */
+/* COLLECT */
 
 document.getElementById(
     "tapBtn"
 ).onclick = (e)=>{
 
-    fragments += 1;
+    fragments++;
 
     player.fragments =
         fragments;
@@ -71,7 +68,7 @@ document.getElementById(
         e.clientY
     );
 
-    APP.camera.position.z = 7.8;
+    APP.camera.position.z = 7.7;
 
     setTimeout(()=>{
         APP.camera.position.z = 8;
@@ -94,7 +91,7 @@ document.getElementById(
         level++;
 
         population +=
-            25000 * level;
+            15000 * level;
 
         player.fragments =
             fragments;
@@ -109,11 +106,6 @@ document.getElementById(
 
         savePlayer();
 
-        pushEvent(
-            "build",
-            { level }
-        );
-
         APP.camera.position.z = 7.2;
 
         setTimeout(()=>{
@@ -126,17 +118,17 @@ document.getElementById(
 
 };
 
-/* NEXT PLANET */
+/* PLANET BUTTON */
 
 document.getElementById(
     "planetBtn"
 ).onclick = ()=>{
 
-    APP.camera.position.z = 11;
+    APP.camera.position.z = 10;
 
     setTimeout(()=>{
         APP.camera.position.z = 8;
-    },700);
+    },600);
 
 };
 
