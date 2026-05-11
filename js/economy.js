@@ -3,25 +3,28 @@ window.cityObjects = [];
 const RADIUS = 2.02;
 
 /* =========================
-   LAND DETECTION FROM TEXTURE IDEA
+   BETTER LAND FILTER (NO MORE OCEAN CITIES)
 ========================= */
-
-/*
-  ВАЖНО:
-  мы НЕ читаем пиксели (это сложно в real-time),
-  а используем приближение:
-  - города только в "умеренных широтах"
-  - чтобы не спавнились в океанах
-*/
 
 function isLandLike(pos) {
 
   const n = pos.clone().normalize();
 
   const lat = n.y;
+  const lon = Math.atan2(n.z, n.x);
 
-  /* исключаем полюса + океанические зоны */
-  return Math.abs(lat) < 0.85;
+  /* ❌ океаны чаще в этих зонах */
+  const oceanBands =
+    Math.abs(lat) < 0.25 ||        // экваториальные океаны
+    Math.abs(lat) > 0.85;          // полярные льды
+
+  if (oceanBands) return false;
+
+  /* псевдо-континентальная структура */
+  const continentPattern =
+    Math.sin(lon * 3.0) + Math.cos(lat * 5.0);
+
+  return continentPattern > -0.2;
 
 }
 
@@ -40,7 +43,7 @@ window.generateCities = function () {
 
     let base;
 
-    for (let tries = 0; tries < 50; tries++) {
+    for (let tries = 0; tries < 80; tries++) {
 
       const phi = Math.random() * Math.PI * 2;
       const theta = Math.acos((Math.random() * 2) - 1);
@@ -59,19 +62,21 @@ window.generateCities = function () {
 
     const city = {
       base,
-      buildings: []
+      buildings: [],
+      level: 0
     };
 
-    const density = 60;
+    /* =========================
+       INITIAL SMALL SETTLEMENT
+    ========================= */
+
+    const density = 25;
 
     for (let j = 0; j < density; j++) {
 
-      const height =
-        0.02 + Math.pow(Math.random(), 2) * 1.2;
-
       const mesh = new THREE.Mesh(
 
-        new THREE.BoxGeometry(0.02, height, 0.02),
+        new THREE.BoxGeometry(0.02, 0.03, 0.02),
 
         new THREE.MeshStandardMaterial({
           color: 0xdcdcdc,
@@ -81,9 +86,9 @@ window.generateCities = function () {
       );
 
       const offset = new THREE.Vector3(
-        (Math.random() - 0.5) * 0.12,
-        (Math.random() - 0.5) * 0.12,
-        (Math.random() - 0.5) * 0.12
+        (Math.random() - 0.5) * 0.1,
+        (Math.random() - 0.5) * 0.1,
+        (Math.random() - 0.5) * 0.1
       );
 
       const pos = base.clone()
@@ -93,17 +98,16 @@ window.generateCities = function () {
 
       mesh.position.copy(
         pos.clone().add(
-          normal.clone().multiplyScalar(height / 2)
+          normal.clone().multiplyScalar(0.02)
         )
       );
 
-      /* правильная ориентация */
       mesh.quaternion.setFromUnitVectors(
         new THREE.Vector3(0,1,0),
         normal
       );
 
-      mesh.userData.normal = normal;
+      mesh.userData.baseHeight = 0.03;
 
       cityGroup.add(mesh);
       city.buildings.push(mesh);
@@ -115,32 +119,59 @@ window.generateCities = function () {
 };
 
 /* =========================
-   GROW SYSTEM
+   PROPER GROWTH SYSTEM (3 STAGES)
 ========================= */
 
 window.growCities = function (level) {
 
   cityObjects.forEach(city => {
 
+    city.level = level;
+
     city.buildings.forEach(b => {
 
-      const scale = 1 + level * 0.25;
+      let scale;
+
+      /* STAGE SYSTEM */
+
+      if (level < 3) {
+        scale = 1 + level * 0.1;       // деревня
+      }
+      else if (level < 7) {
+        scale = 1 + level * 0.25;      // город
+      }
+      else {
+        scale = 1 + level * 0.4;       // мегаполис
+      }
 
       b.scale.y = scale;
 
-      if (level > 3) {
+      /* HEIGHT LIMIT (fix "too big from start") */
+      b.scale.y = Math.min(b.scale.y, 6);
+
+      /* LIGHTS ONLY LATE GAME */
+      if (level > 4) {
         b.material.emissive.setHex(0x111133);
         b.material.emissiveIntensity = 0.5;
       }
 
-      if (level > 7 && Math.random() > 0.97) {
-        b.scale.y *= 3;
+      /* SKYLINES ONLY ENDGAME */
+      if (level > 8 && Math.random() > 0.98) {
+        b.scale.y *= 2.2;
       }
 
     });
 
   });
 
+};
+
+/* =========================
+   RESET
+========================= */
+
+window.resetCities = function () {
+  generateCities();
 };
 
 /* INIT */
