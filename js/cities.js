@@ -3,98 +3,67 @@ APP.cityGroup =
 
 APP.scene.add(APP.cityGroup);
 
-const RADIUS = 2.24;
-
-window.spawnCities = function(level=1){
+window.spawnCities =
+function(level=1){
 
     APP.cityGroup.clear();
 
-    const cityCount =
-        10 + level*2;
+    /* одинаковый спавн */
 
-    for(let i=0;i<cityCount;i++){
+    CONTINENTS.forEach(continent=>{
 
-        const phi =
-            Math.random()*Math.PI*2;
-
-        const theta =
-            Math.random()*Math.PI;
-
-        const base =
-            new THREE.Vector3(
-
-                Math.sin(theta)*Math.cos(phi),
-
-                Math.cos(theta),
-
-                Math.sin(theta)*Math.sin(phi)
-
-            ).multiplyScalar(RADIUS);
+        const center =
+            continent.position.clone();
 
         const normal =
-            base.clone().normalize();
+            center.clone().normalize();
 
-        const buildings =
-            15 + level*2;
+        const count =
+            8 + level;
 
-        for(let j=0;j<buildings;j++){
+        for(let i=0;i<count;i++){
 
-            const height =
-                0.03 +
-                Math.random()*0.08 +
-                level*0.004;
-
-            const geo =
-                new THREE.BoxGeometry(
-                    0.02,
-                    height,
-                    0.02
-                );
-
-            const mat =
-                new THREE.MeshStandardMaterial({
-
-                    color:new THREE.Color().setHSL(
-                        0.55 + Math.random()*0.15,
-                        0.85,
-                        0.65
-                    ),
-
-                    emissive:0x102040
-
-                });
+            const h =
+                0.08 +
+                level*0.01 +
+                Math.random()*0.12;
 
             const b =
                 new THREE.Mesh(
-                    geo,
-                    mat
-                );
 
-            const spread = 0.08;
+                    new THREE.BoxGeometry(
+                        0.05,
+                        h,
+                        0.05
+                    ),
+
+                    new THREE.MeshToonMaterial({
+                        color:0xffffff
+                    })
+
+                );
 
             const offset =
                 new THREE.Vector3(
 
-                    (Math.random()-0.5)*spread,
+                    (Math.random()-0.5)*0.18,
 
-                    (Math.random()-0.5)*spread,
+                    (Math.random()-0.5)*0.18,
 
-                    (Math.random()-0.5)*spread
+                    (Math.random()-0.5)*0.18
 
                 );
 
             const pos =
-                base.clone()
+                center.clone()
                 .add(offset)
                 .normalize()
-                .multiplyScalar(RADIUS);
+                .multiplyScalar(2.34);
 
             b.position.copy(
-
                 pos.clone().add(
-                    normal.clone().multiplyScalar(height/2)
+                    normal.clone().multiplyScalar(h/2)
                 )
-
             );
 
             b.quaternion.setFromUnitVectors(
@@ -104,7 +73,9 @@ window.spawnCities = function(level=1){
 
             APP.cityGroup.add(b);
         }
-    }
+
+    });
+
 }
 
 spawnCities(1);
