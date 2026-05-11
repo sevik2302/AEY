@@ -1,10 +1,12 @@
 APP.planetGroup =
     new THREE.Group();
 
-APP.scene.add(APP.planetGroup);
+APP.scene.add(
+    APP.planetGroup
+);
 
 /* =========================
-   GEOMETRY
+   PLANET
 ========================= */
 
 const geometry =
@@ -19,8 +21,10 @@ const position =
 
 const colors = [];
 
+window.LAND_AREAS = [];
+
 /* =========================
-   EARTH-LIKE CONTINENTS
+   CONTINENTS
 ========================= */
 
 const continents = [
@@ -70,22 +74,16 @@ const continents = [
 ];
 
 /* =========================
-   LAND STORAGE
-========================= */
-
-window.LAND_AREAS = [];
-
-/* =========================
    SMOOTHSTEP
 ========================= */
 
-function smoothstep(edge0,edge1,x){
+function smoothstep(a,b,x){
 
     x = Math.max(
         0,
         Math.min(
             1,
-            (x-edge0)/(edge1-edge0)
+            (x-a)/(b-a)
         )
     );
 
@@ -94,7 +92,7 @@ function smoothstep(edge0,edge1,x){
 }
 
 /* =========================
-   MODIFY PLANET
+   SHAPE
 ========================= */
 
 for(let i=0;i<position.count;i++){
@@ -110,7 +108,7 @@ for(let i=0;i<position.count;i++){
             z
         ).normalize();
 
-    let landInfluence = 0;
+    let land = 0;
 
     for(const c of continents){
 
@@ -130,10 +128,6 @@ for(let i=0;i<position.count;i++){
                 dz*dz
             );
 
-        /*
-        плавный falloff
-        */
-
         const influence =
             1 -
             smoothstep(
@@ -142,27 +136,19 @@ for(let i=0;i<position.count;i++){
                 dist
             );
 
-        landInfluence =
+        land =
             Math.max(
-                landInfluence,
+                land,
                 influence
             );
 
     }
 
-    /* =====================
-       LAND
-    ===================== */
-
-    if(landInfluence > 0.02){
-
-        /*
-        очень мягкий рельеф
-        */
+    if(land > 0.02){
 
         const raise =
             1 +
-            landInfluence * 0.03;
+            land*0.03;
 
         x *= raise;
         y *= raise;
@@ -175,10 +161,6 @@ for(let i=0;i<position.count;i++){
             z
         );
 
-        /*
-        smooth lime
-        */
-
         colors.push(
             0.72,
             1.0,
@@ -189,13 +171,7 @@ for(let i=0;i<position.count;i++){
             normal.clone()
         );
 
-    }
-
-    /* =====================
-       OCEAN
-    ===================== */
-
-    else{
+    }else{
 
         colors.push(
             0.0,
@@ -235,10 +211,6 @@ const material =
 
     });
 
-/* =========================
-   PLANET
-========================= */
-
 APP.planet =
     new THREE.Mesh(
         geometry,
@@ -247,4 +219,59 @@ APP.planet =
 
 APP.planetGroup.add(
     APP.planet
+);
+
+/* =========================
+   RIM LIGHT
+========================= */
+
+const rim =
+    new THREE.Mesh(
+
+        new THREE.SphereGeometry(
+            1.73,
+            64,
+            64
+        ),
+
+        new THREE.MeshBasicMaterial({
+
+            color:0xffffff,
+            transparent:true,
+            opacity:0.05,
+            side:THREE.BackSide
+
+        })
+
+    );
+
+APP.planetGroup.add(
+    rim
+);
+
+/* =========================
+   CLOUD LAYER
+========================= */
+
+APP.cloudLayer =
+    new THREE.Mesh(
+
+        new THREE.SphereGeometry(
+            1.71,
+            64,
+            64
+        ),
+
+        new THREE.MeshToonMaterial({
+
+            color:0xffffff,
+            transparent:true,
+            opacity:0.08
+
+        })
+
+    );
+
+APP.planetGroup.add(
+    APP.cloudLayer
 );
