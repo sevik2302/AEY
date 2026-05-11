@@ -2,23 +2,36 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>AEY GALAXY FINAL STABLE</title>
+<title>AEY TYCOON GALAXY</title>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/postprocessing/EffectComposer.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/postprocessing/RenderPass.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
-
-<script defer src="js/renderer.js"></script>
-<script defer src="js/planets.js"></script>
-<script defer src="js/economy.js"></script>
-<script defer src="js/game.js"></script>
-
 <style>
-body{margin:0;overflow:hidden;background:black;font-family:Arial}
-#ui{position:fixed;top:20px;left:20px;color:white;z-index:10}
-button{padding:12px 18px;margin:5px;border-radius:10px;border:none;background:#222;color:white}
+body {
+  margin:0;
+  overflow:hidden;
+  background:#000;
+  font-family: Arial;
+}
+
+#ui {
+  position:fixed;
+  top:20px;
+  left:20px;
+  color:white;
+  z-index:10;
+}
+
+button {
+  padding:14px 20px;
+  margin:6px;
+  border:none;
+  border-radius:12px;
+  background:#1a1a1a;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
 </style>
 
 </head>
@@ -28,9 +41,14 @@ button{padding:12px 18px;margin:5px;border-radius:10px;border:none;background:#2
 <div id="ui">
   <button onclick="tap()">TAP</button>
   <button onclick="build()">BUILD</button>
-  <button onclick="nextPlanet()">NEXT PLANET</button>
+  <button onclick="nextPlanet()">NEXT</button>
   <div id="info"></div>
 </div>
+
+<script src="js/engine.js"></script>
+<script src="js/planet.js"></script>
+<script src="js/cities.js"></script>
+<script src="js/game.js"></script>
 
 </body>
 </html>
