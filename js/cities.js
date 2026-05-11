@@ -3,34 +3,65 @@ APP.scene.add(APP.cityGroup);
 
 const PLANET_RADIUS = 1.75;
 
-/* проверка: попали ли на сушу */
+/* =========================
+   LAND CHECK
+========================= */
 function isLand(normal) {
-
     for (const p of LAND_POINTS) {
-
-        const d = normal.distanceTo(p);
-
-        if (d < 0.35) return true;
+        if (normal.distanceTo(p) < 0.4) return true;
     }
-
     return false;
 }
 
 /* =========================
-   SPAWN CITIES (ONLY LAND)
+   CARTOON HOUSE (POCOYO STYLE)
 ========================= */
+function createHouse() {
 
+    const group = new THREE.Group();
+
+    const bodyColor = new THREE.Color(
+        Math.random() > 0.5 ? 0xffcc00 :
+        Math.random() > 0.5 ? 0xff4d4d :
+        0x66ccff
+    );
+
+    /* дом */
+    const body = new THREE.Mesh(
+        new THREE.BoxGeometry(0.06, 0.08, 0.06),
+        new THREE.MeshToonMaterial({ color: bodyColor })
+    );
+
+    body.position.y = 0.04;
+    group.add(body);
+
+    /* крыша (мультяшная) */
+    const roof = new THREE.Mesh(
+        new THREE.ConeGeometry(0.05, 0.05, 4),
+        new THREE.MeshToonMaterial({ color: 0xffffff })
+    );
+
+    roof.position.y = 0.11;
+    roof.rotation.y = Math.PI / 4;
+
+    group.add(roof);
+
+    return group;
+}
+
+/* =========================
+   SPAWN CITIES
+========================= */
 window.spawnCities = function(level = 1) {
 
     APP.cityGroup.clear();
 
-    const count = 160 + level * 15;
+    const count = 180 + level * 20;
 
     for (let i = 0; i < count; i++) {
 
         let normal;
 
-        /* ищем сушу */
         for (let t = 0; t < 80; t++) {
 
             const phi = Math.random() * Math.PI * 2;
@@ -45,31 +76,20 @@ window.spawnCities = function(level = 1) {
             if (isLand(normal)) break;
         }
 
-        const height = 0.06 + Math.random() * 0.18 + level * 0.005;
+        const house = createHouse();
 
-        const building = new THREE.Mesh(
-            new THREE.BoxGeometry(
-                0.03,
-                height,
-                0.03
-            ),
-            new THREE.MeshToonMaterial({
-                color: 0xffffff
-            })
+        const height = 0.02;
+
+        house.position.copy(
+            normal.clone().multiplyScalar(PLANET_RADIUS + height)
         );
 
-        /* позиция НА поверхности */
-        building.position.copy(
-            normal.clone().multiplyScalar(PLANET_RADIUS + height / 2)
-        );
-
-        /* ориентация вверх от планеты */
-        building.quaternion.setFromUnitVectors(
-            new THREE.Vector3(0, 1, 0),
+        house.quaternion.setFromUnitVectors(
+            new THREE.Vector3(0,1,0),
             normal
         );
 
-        APP.cityGroup.add(building);
+        APP.cityGroup.add(house);
     }
 };
 
