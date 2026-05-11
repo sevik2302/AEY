@@ -3,71 +3,38 @@ window.cityObjects = [];
 const RADIUS = 2.02;
 
 /* =========================
-   EARTH TEXTURE SAMPLING (REAL LAND DETECTION)
+   FINAL LAND DETECTION (ROBUST)
 ========================= */
 
-const canvas = document.createElement("canvas");
-const ctx = canvas.getContext("2d");
-
-const img = new Image();
-img.crossOrigin = "anonymous";
-img.src = "https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg";
-
-let textureReady = false;
-
-img.onload = () => {
-
-  canvas.width = 1024;
-  canvas.height = 512;
-
-  ctx.drawImage(img, 0, 0, 1024, 512);
-
-  textureReady = true;
-
-  generateCities(); // пересоздаём после загрузки
-
-};
-
-/* =========================
-   UV -> COLOR CHECK
-========================= */
-
-function isLandUV(vec) {
-
-  if (!textureReady) return true;
+function isLand(vec) {
 
   const n = vec.clone().normalize();
 
-  const u = 0.5 + Math.atan2(n.z, n.x) / (2 * Math.PI);
-  const v = 0.5 - Math.asin(n.y) / Math.PI;
+  const lat = n.y;
 
-  const x = Math.floor(u * 1024);
-  const y = Math.floor(v * 512);
+  /* океаны */
+  if (Math.abs(lat) < 0.24) return false;
+  if (Math.abs(lat) > 0.86) return false;
 
-  const pixel = ctx.getImageData(x, y, 1, 1).data;
+  /* континентальная структура */
+  const landPattern =
+    Math.sin(n.x * 4.5) +
+    Math.cos(n.z * 3.7);
 
-  const r = pixel[0];
-  const g = pixel[1];
-  const b = pixel[2];
+  return landPattern > -0.05;
 
-  /* океан = синий */
-  const isOcean = b > r && b > g;
-
-  return !isOcean;
 }
 
 /* =========================
-   CITY GENERATION (ONLY LAND)
+   CITY GENERATION
 ========================= */
 
 window.generateCities = function () {
 
-  if (!textureReady) return;
-
   cityGroup.clear();
   cityObjects = [];
 
-  const cityCount = 12;
+  const cityCount = 14;
 
   for (let i = 0; i < cityCount; i++) {
 
@@ -84,7 +51,7 @@ window.generateCities = function () {
         Math.sin(theta) * Math.sin(phi)
       ).multiplyScalar(RADIUS);
 
-      if (isLandUV(base)) break;
+      if (isLand(base)) break;
 
     }
 
@@ -96,31 +63,31 @@ window.generateCities = function () {
     };
 
     /* =========================
-       MORE BUILDINGS, SMALLER SIZE
+       DENSITY (FINAL BALANCE)
     ========================= */
 
-    const density = 70; // больше зданий
+    const density = 110;
 
     for (let j = 0; j < density; j++) {
 
       const height =
-        0.02 + Math.pow(Math.random(), 1.8) * 0.6; // меньше и мягче
+        0.01 + Math.pow(Math.random(), 2.6) * 0.38;
 
       const mesh = new THREE.Mesh(
 
-        new THREE.BoxGeometry(0.015, height, 0.015),
+        new THREE.BoxGeometry(0.009, height, 0.009),
 
         new THREE.MeshStandardMaterial({
-          color: 0xdcdcdc,
+          color: 0xd8d8d8,
           emissive: 0x000000
         })
 
       );
 
       const offset = new THREE.Vector3(
-        (Math.random() - 0.5) * 0.08,
-        (Math.random() - 0.5) * 0.08,
-        (Math.random() - 0.5) * 0.08
+        (Math.random() - 0.5) * 0.065,
+        (Math.random() - 0.5) * 0.065,
+        (Math.random() - 0.5) * 0.065
       );
 
       const pos = base.clone()
@@ -139,8 +106,6 @@ window.generateCities = function () {
         normal
       );
 
-      mesh.userData.baseHeight = height;
-
       cityGroup.add(mesh);
       city.buildings.push(mesh);
 
@@ -151,7 +116,7 @@ window.generateCities = function () {
 };
 
 /* =========================
-   GROW SYSTEM (CONTROLLED)
+   FINAL GROWTH SYSTEM
 ========================= */
 
 window.growCities = function (level) {
@@ -160,20 +125,19 @@ window.growCities = function (level) {
 
     city.buildings.forEach(b => {
 
-      /* мягкий рост */
-      const scale = 1 + level * 0.18;
+      let scale = 1 + level * 0.13;
 
-      b.scale.y = Math.min(scale, 4); // ограничение высоты
+      scale = Math.min(scale, 3.0);
 
-      /* lights later */
+      b.scale.y = scale;
+
       if (level > 4) {
-        b.material.emissive.setHex(0x111122);
-        b.material.emissiveIntensity = 0.5;
+        b.material.emissive.setHex(0x101a33);
+        b.material.emissiveIntensity = 0.35;
       }
 
-      /* rare skyscrapers */
-      if (level > 7 && Math.random() > 0.99) {
-        b.scale.y *= 2;
+      if (level > 8 && Math.random() > 0.99) {
+        b.scale.y *= 1.8;
       }
 
     });
@@ -182,10 +146,5 @@ window.growCities = function (level) {
 
 };
 
-/* =========================
-   RESET
-========================= */
-
-window.resetCities = function () {
-  generateCities();
-};
+/* INIT */
+setTimeout(() => generateCities(), 500);
