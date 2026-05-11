@@ -1,11 +1,23 @@
 window.fragments = 0;
-
 window.level = 1;
-
 window.population = 120000;
 
-const stats =
-    document.getElementById("stats");
+/* UI ELEMENTS */
+
+const fragmentsValue =
+    document.getElementById(
+        "fragmentsValue"
+    );
+
+const levelValue =
+    document.getElementById(
+        "levelValue"
+    );
+
+const populationValue =
+    document.getElementById(
+        "populationValue"
+    );
 
 /* INIT */
 
@@ -28,33 +40,27 @@ setTimeout(async ()=>{
 
 },500);
 
-/* UI */
+/* UPDATE UI */
 
 function updateUI(){
 
-    stats.innerHTML = `
+    fragmentsValue.innerText =
+        fragments;
 
-    Fragments:
-    ${fragments}
+    levelValue.innerText =
+        level;
 
-    <br>
-
-    Level:
-    ${level}
-
-    <br>
-
-    Population:
-    ${(population/1000).toFixed(1)}K
-
-    `;
+    populationValue.innerText =
+        Math.floor(
+            population/1000
+        ) + "K";
 
 }
 
 /* COLLECT */
 
 document.getElementById(
-    "tapBtn"
+    "collectBtn"
 ).onclick = (e)=>{
 
     fragments++;
@@ -68,20 +74,20 @@ document.getElementById(
         e.clientY
     );
 
-    APP.camera.position.z = 7.7;
+    APP.camera.position.z = 6.8;
 
     setTimeout(()=>{
-        APP.camera.position.z = 8;
+        APP.camera.position.z = 7;
     },80);
 
     updateUI();
 
 };
 
-/* BUILD */
+/* UPGRADE */
 
 document.getElementById(
-    "buildBtn"
+    "upgradeBtn"
 ).onclick = ()=>{
 
     if(fragments >= 10){
@@ -91,7 +97,7 @@ document.getElementById(
         level++;
 
         population +=
-            15000 * level;
+            18000 * level;
 
         player.fragments =
             fragments;
@@ -106,11 +112,16 @@ document.getElementById(
 
         savePlayer();
 
-        APP.camera.position.z = 7.2;
+        pushEvent(
+            "upgrade",
+            { level }
+        );
+
+        APP.camera.position.z = 6.5;
 
         setTimeout(()=>{
-            APP.camera.position.z = 8;
-        },180);
+            APP.camera.position.z = 7;
+        },150);
 
     }
 
@@ -118,17 +129,17 @@ document.getElementById(
 
 };
 
-/* PLANET BUTTON */
+/* PLANET */
 
 document.getElementById(
     "planetBtn"
 ).onclick = ()=>{
 
-    APP.camera.position.z = 10;
+    APP.camera.position.z = 9;
 
     setTimeout(()=>{
-        APP.camera.position.z = 8;
-    },600);
+        APP.camera.position.z = 7;
+    },700);
 
 };
 
