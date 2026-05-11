@@ -1,10 +1,11 @@
-
 APP.cityGroup =
     new THREE.Group();
 
 APP.scene.add(APP.cityGroup);
 
-/* ===== LAND CHECK ===== */
+/* =========================
+   LAND CHECK
+========================= */
 
 function isLand(normal){
 
@@ -12,7 +13,7 @@ function isLand(normal){
 
         if(
             normal.distanceTo(p)
-            < 0.28
+            < 0.09
         ){
             return true;
         }
@@ -22,7 +23,9 @@ function isLand(normal){
     return false;
 }
 
-/* ===== CITIES ===== */
+/* =========================
+   CITIES
+========================= */
 
 window.spawnCities =
 function(level=1){
@@ -30,15 +33,13 @@ function(level=1){
     APP.cityGroup.clear();
 
     const count =
-        28 + level*4;
+        30 + level*5;
 
     for(let i=0;i<count;i++){
 
         let normal;
 
-        /* ищем сушу */
-
-        for(let t=0;t<100;t++){
+        for(let t=0;t<120;t++){
 
             const phi =
                 Math.random()*Math.PI*2;
@@ -65,32 +66,32 @@ function(level=1){
 
         const height =
             0.12 +
-            Math.random()*0.22 +
+            Math.random()*0.18 +
             level*0.008;
 
         const building =
             new THREE.Mesh(
 
                 new THREE.BoxGeometry(
-                    0.06,
+                    0.05,
                     height,
-                    0.06
+                    0.05
                 ),
 
                 new THREE.MeshToonMaterial({
 
-                    color:0xfff7ed
+                    color:0xfff7ec
 
                 })
 
             );
 
-        /* только на суше */
+        /* чуть выше суши */
 
         building.position.copy(
 
             normal.clone().multiplyScalar(
-                1.67 + height/2
+                1.68 + height/2
             )
 
         );
