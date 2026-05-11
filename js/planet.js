@@ -23,15 +23,8 @@ const colors = [];
    EARTH-LIKE CONTINENTS
 ========================= */
 
-/*
-континенты задаются
-как крупные зоны,
-похожие на землю
-*/
-
 const continents = [
 
-    /* north america */
     {
         x:-0.55,
         y:0.28,
@@ -39,7 +32,6 @@ const continents = [
         radius:0.42
     },
 
-    /* south america */
     {
         x:-0.42,
         y:-0.42,
@@ -47,7 +39,6 @@ const continents = [
         radius:0.28
     },
 
-    /* europe */
     {
         x:0.18,
         y:0.36,
@@ -55,7 +46,6 @@ const continents = [
         radius:0.18
     },
 
-    /* africa */
     {
         x:0.18,
         y:-0.08,
@@ -63,7 +53,6 @@ const continents = [
         radius:0.32
     },
 
-    /* asia */
     {
         x:0.62,
         y:0.16,
@@ -71,7 +60,6 @@ const continents = [
         radius:0.52
     },
 
-    /* australia */
     {
         x:0.62,
         y:-0.48,
@@ -81,7 +69,9 @@ const continents = [
 
 ];
 
-/* save land */
+/* =========================
+   SAVE LAND
+========================= */
 
 window.LAND_AREAS = [];
 
@@ -143,18 +133,19 @@ for(let i=0;i<position.count;i++){
 
     }
 
-    /* ===== LAND ===== */
+    /* =========================
+       LAND
+    ========================= */
 
     if(isLand){
 
         /*
-        минимальное выпирание,
-        как на земле
+        очень слабое выпирание
         */
 
         const raise =
             1 +
-            landPower * 0.045;
+            landPower * 0.04;
 
         x *= raise;
         y *= raise;
@@ -167,10 +158,14 @@ for(let i=0;i<position.count;i++){
             z
         );
 
+        /*
+        тёплый салатовый
+        */
+
         colors.push(
-            0.55,
-            0.95,
-            0.28
+            0.62,
+            0.96,
+            0.22
         );
 
         LAND_AREAS.push(
@@ -179,14 +174,20 @@ for(let i=0;i<position.count;i++){
 
     }
 
-    /* ===== OCEAN ===== */
+    /* =========================
+       OCEAN
+    ========================= */
 
     else{
 
+        /*
+        глубокий синий
+        */
+
         colors.push(
-            0.08,
-            0.58,
-            1.0
+            0.02,
+            0.42,
+            0.95
         );
 
     }
