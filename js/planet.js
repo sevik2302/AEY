@@ -3,67 +3,25 @@ APP.planetGroup = new THREE.Group();
 APP.scene.add(APP.planetGroup);
 
 /* =========================
-   OCEAN
+   PLANET
 ========================= */
 
-APP.planet =
-    new THREE.Mesh(
-
-        new THREE.SphereGeometry(
-            1.7,
-            64,
-            64
-        ),
-
-        new THREE.MeshToonMaterial({
-
-            color:0x59b7ff
-
-        })
-
+const geometry =
+    new THREE.SphereGeometry(
+        1.7,
+        128,
+        128
     );
 
-APP.planetGroup.add(APP.planet);
+const colors = [];
+
+const landPoints = [];
 
 /* =========================
-   CONTINENTS
+   CARTOON CONTINENTS
 ========================= */
 
-window.CONTINENTS = [];
-
-const landColors = [
-    0x6be38b,
-    0x7ce596,
-    0x63db84
-];
-
-for(let i=0;i<16;i++){
-
-    const size =
-        0.18 +
-        Math.random()*0.22;
-
-    const land =
-        new THREE.Mesh(
-
-            new THREE.SphereGeometry(
-                size,
-                18,
-                18
-            ),
-
-            new THREE.MeshToonMaterial({
-
-                color:
-                    landColors[
-                        Math.floor(
-                            Math.random()*landColors.length
-                        )
-                    ]
-
-            })
-
-        );
+for(let i=0;i<18;i++){
 
     const phi =
         Math.random()*Math.PI*2;
@@ -71,27 +29,114 @@ for(let i=0;i<16;i++){
     const theta =
         Math.random()*Math.PI;
 
-    const pos =
-        new THREE.Vector3(
+    landPoints.push({
 
+        x:
             Math.sin(theta)*Math.cos(phi),
 
+        y:
             Math.cos(theta),
 
-            Math.sin(theta)*Math.sin(phi)
+        z:
+            Math.sin(theta)*Math.sin(phi),
 
-        ).multiplyScalar(1.63);
+        radius:
+            0.45 + Math.random()*0.22
 
-    land.position.copy(pos);
-
-    /* orientation */
-    land.lookAt(0,0,0);
-
-    APP.planetGroup.add(land);
-
-    CONTINENTS.push(land);
+    });
 
 }
+
+/* =========================
+   VERTEX COLORS
+========================= */
+
+const pos =
+    geometry.attributes.position;
+
+for(let i=0;i<pos.count;i++){
+
+    const vx = pos.getX(i);
+    const vy = pos.getY(i);
+    const vz = pos.getZ(i);
+
+    const normal =
+        new THREE.Vector3(
+            vx,
+            vy,
+            vz
+        ).normalize();
+
+    let land = false;
+
+    for(const p of landPoints){
+
+        const dx = normal.x - p.x;
+        const dy = normal.y - p.y;
+        const dz = normal.z - p.z;
+
+        const dist =
+            Math.sqrt(
+                dx*dx +
+                dy*dy +
+                dz*dz
+            );
+
+        if(dist < p.radius){
+
+            land = true;
+            break;
+
+        }
+
+    }
+
+    if(land){
+
+        colors.push(
+            0.42,
+            0.87,
+            0.56
+        );
+
+    }else{
+
+        colors.push(
+            0.35,
+            0.72,
+            1.0
+        );
+
+    }
+
+}
+
+geometry.setAttribute(
+    "color",
+    new THREE.Float32BufferAttribute(
+        colors,
+        3
+    )
+);
+
+/* =========================
+   PLANET MATERIAL
+========================= */
+
+const material =
+    new THREE.MeshToonMaterial({
+
+        vertexColors:true
+
+    });
+
+APP.planet =
+    new THREE.Mesh(
+        geometry,
+        material
+    );
+
+APP.planetGroup.add(APP.planet);
 
 /* =========================
    ATMOSPHERE
@@ -101,9 +146,9 @@ const atmosphere =
     new THREE.Mesh(
 
         new THREE.SphereGeometry(
-            1.82,
-            48,
-            48
+            1.8,
+            64,
+            64
         ),
 
         new THREE.MeshBasicMaterial({
@@ -119,3 +164,7 @@ const atmosphere =
     );
 
 APP.planetGroup.add(atmosphere);
+
+/* SAVE LAND DATA */
+
+window.LAND_POINTS = landPoints;
