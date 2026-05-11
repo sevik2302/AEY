@@ -1,8 +1,5 @@
-window.floatText = function(
-    text,
-    x,
-    y
-){
+window.floatText =
+function(text,x,y){
 
     const el =
         document.createElement("div");
