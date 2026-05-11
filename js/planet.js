@@ -1,74 +1,89 @@
-const loader =
-    new THREE.TextureLoader();
-
-const earth =
-    loader.load(
-        "https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg"
-    );
-
-const clouds =
-    loader.load(
-        "https://threejs.org/examples/textures/planets/earth_clouds_1024.png"
-    );
-
 /* PLANET */
 
 APP.planet =
     new THREE.Mesh(
 
         new THREE.SphereGeometry(
-            2.2,
-            128,
-            128
+            2.3,
+            64,
+            64
         ),
 
-        new THREE.MeshStandardMaterial({
-            map:earth,
-            roughness:1
+        new THREE.MeshToonMaterial({
+
+            color:0x4fa8ff
+
         })
 
     );
 
 APP.scene.add(APP.planet);
 
-/* CLOUDS */
+/* LAND */
 
-APP.clouds =
-    new THREE.Mesh(
-
-        new THREE.SphereGeometry(
-            2.26,
-            128,
-            128
-        ),
-
-        new THREE.MeshStandardMaterial({
-            map:clouds,
-            transparent:true,
-            opacity:0.3
-        })
-
+const landGeo =
+    new THREE.SphereGeometry(
+        2.31,
+        64,
+        64
     );
 
-APP.scene.add(APP.clouds);
+const landMat =
+    new THREE.MeshToonMaterial({
+        color:0x5edc8d
+    });
 
-/* ATMOSPHERE */
-
-const atmosphere =
+const land =
     new THREE.Mesh(
-
-        new THREE.SphereGeometry(
-            2.34,
-            64,
-            64
-        ),
-
-        new THREE.MeshBasicMaterial({
-            color:0x5ea3ff,
-            transparent:true,
-            opacity:0.12
-        })
-
+        landGeo,
+        landMat
     );
 
-APP.scene.add(atmosphere);
+APP.scene.add(land);
+
+/* CONTINENTS */
+
+const continents = [];
+
+for(let i=0;i<14;i++){
+
+    const c =
+        new THREE.Mesh(
+
+            new THREE.SphereGeometry(
+                0.35 + Math.random()*0.25,
+                18,
+                18
+            ),
+
+            new THREE.MeshToonMaterial({
+                color:0x5edc8d
+            })
+
+        );
+
+    const phi =
+        Math.random()*Math.PI*2;
+
+    const theta =
+        Math.random()*Math.PI;
+
+    const pos =
+        new THREE.Vector3(
+
+            Math.sin(theta)*Math.cos(phi),
+
+            Math.cos(theta),
+
+            Math.sin(theta)*Math.sin(phi)
+
+        ).multiplyScalar(2.18);
+
+    c.position.copy(pos);
+
+    APP.planet.add(c);
+
+    continents.push(c);
+}
+
+window.CONTINENTS = continents;
