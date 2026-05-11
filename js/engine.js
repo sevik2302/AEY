@@ -1,32 +1,40 @@
 window.APP = {};
 
-/* SCENE */
-
 APP.scene = new THREE.Scene();
+
+APP.scene.fog =
+    new THREE.Fog(
+        0x8ed8ff,
+        8,
+        20
+    );
 
 /* CAMERA */
 
-APP.camera = new THREE.PerspectiveCamera(
-    45,
-    innerWidth/innerHeight,
-    0.1,
-    1000
-);
+APP.camera =
+    new THREE.PerspectiveCamera(
+        45,
+        innerWidth/innerHeight,
+        0.1,
+        1000
+    );
 
 APP.camera.position.set(0,0,8);
 
 /* RENDERER */
 
-APP.renderer = new THREE.WebGLRenderer({
-    antialias:true,
-    alpha:true
-});
-
-APP.renderer.setPixelRatio(devicePixelRatio);
+APP.renderer =
+    new THREE.WebGLRenderer({
+        antialias:true
+    });
 
 APP.renderer.setSize(
     innerWidth,
     innerHeight
+);
+
+APP.renderer.setPixelRatio(
+    devicePixelRatio
 );
 
 document.body.appendChild(
@@ -35,68 +43,22 @@ document.body.appendChild(
 
 /* LIGHT */
 
-const ambient =
-    new THREE.AmbientLight(
-        0xffffff,
-        1.2
-    );
-
-APP.scene.add(ambient);
-
-const sun =
+const light =
     new THREE.DirectionalLight(
         0xffffff,
-        2
+        2.2
     );
 
-sun.position.set(5,5,5);
+light.position.set(5,5,5);
 
-APP.scene.add(sun);
+APP.scene.add(light);
 
-/* STARS */
-
-const starsGeo =
-    new THREE.BufferGeometry();
-
-const starPos = [];
-
-for(let i=0;i<5000;i++){
-
-    starPos.push(
-        (Math.random()-0.5)*400
-    );
-
-    starPos.push(
-        (Math.random()-0.5)*400
-    );
-
-    starPos.push(
-        (Math.random()-0.5)*400
-    );
-
-}
-
-starsGeo.setAttribute(
-    "position",
-    new THREE.Float32BufferAttribute(
-        starPos,
-        3
+APP.scene.add(
+    new THREE.AmbientLight(
+        0xffffff,
+        1.8
     )
 );
-
-const stars =
-    new THREE.Points(
-
-        starsGeo,
-
-        new THREE.PointsMaterial({
-            color:0xffffff,
-            size:0.03
-        })
-
-    );
-
-APP.scene.add(stars);
 
 /* LOOP */
 
@@ -108,18 +70,15 @@ function animate(){
         APP.planet.rotation.y += 0.0012;
     }
 
-    if(APP.clouds){
-        APP.clouds.rotation.y += 0.0015;
-    }
-
     if(APP.cityGroup){
-        APP.cityGroup.rotation.y += 0.0004;
+        APP.cityGroup.rotation.y += 0.0012;
     }
 
     APP.renderer.render(
         APP.scene,
         APP.camera
     );
+
 }
 
 animate();
