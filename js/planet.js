@@ -4,14 +4,14 @@ APP.planetGroup =
 APP.scene.add(APP.planetGroup);
 
 /* =========================
-   PLANET GEOMETRY
+   GEOMETRY
 ========================= */
 
 const geometry =
     new THREE.SphereGeometry(
         1.65,
-        160,
-        160
+        220,
+        220
     );
 
 const position =
@@ -20,7 +20,7 @@ const position =
 const colors = [];
 
 /* =========================
-   CONTINENTS
+   EARTH-LIKE CONTINENTS
 ========================= */
 
 const continents = [
@@ -69,10 +69,32 @@ const continents = [
 
 ];
 
+/* =========================
+   LAND STORAGE
+========================= */
+
 window.LAND_AREAS = [];
 
 /* =========================
-   VERTEX EDIT
+   SMOOTHSTEP
+========================= */
+
+function smoothstep(edge0,edge1,x){
+
+    x = Math.max(
+        0,
+        Math.min(
+            1,
+            (x-edge0)/(edge1-edge0)
+        )
+    );
+
+    return x*x*(3-2*x);
+
+}
+
+/* =========================
+   MODIFY PLANET
 ========================= */
 
 for(let i=0;i<position.count;i++){
@@ -88,9 +110,7 @@ for(let i=0;i<position.count;i++){
             z
         ).normalize();
 
-    let isLand = false;
-
-    let landPower = 0;
+    let landInfluence = 0;
 
     for(const c of continents){
 
@@ -110,38 +130,39 @@ for(let i=0;i<position.count;i++){
                 dz*dz
             );
 
-        if(dist < c.radius){
+        /*
+        плавный falloff
+        */
 
-            isLand = true;
+        const influence =
+            1 -
+            smoothstep(
+                c.radius*0.45,
+                c.radius,
+                dist
+            );
 
-            const influence =
-                1 - (
-                    dist / c.radius
-                );
-
-            landPower =
-                Math.max(
-                    landPower,
-                    influence
-                );
-
-        }
+        landInfluence =
+            Math.max(
+                landInfluence,
+                influence
+            );
 
     }
 
-    /* =========================
+    /* =====================
        LAND
-    ========================= */
+    ===================== */
 
-    if(isLand){
+    if(landInfluence > 0.02){
 
         /*
-        минимальный рельеф
+        очень мягкий рельеф
         */
 
         const raise =
             1 +
-            landPower * 0.035;
+            landInfluence * 0.03;
 
         x *= raise;
         y *= raise;
@@ -155,7 +176,7 @@ for(let i=0;i<position.count;i++){
         );
 
         /*
-        яркий lime green
+        smooth lime
         */
 
         colors.push(
@@ -170,15 +191,11 @@ for(let i=0;i<position.count;i++){
 
     }
 
-    /* =========================
+    /* =====================
        OCEAN
-    ========================= */
+    ===================== */
 
     else{
-
-        /*
-        глубокий насыщенный синий
-        */
 
         colors.push(
             0.0,
@@ -189,6 +206,10 @@ for(let i=0;i<position.count;i++){
     }
 
 }
+
+/* =========================
+   COLORS
+========================= */
 
 geometry.setAttribute(
 
