@@ -1,21 +1,69 @@
 window.fragments = 0;
+
 window.level = 1;
+
 window.population = 120000;
 
-const stats = document.getElementById("stats");
+const stats =
+    document.getElementById("stats");
+
+/* INIT */
+
+setTimeout(async ()=>{
+
+    if(window.loadPlayer){
+
+        await loadPlayer();
+
+        fragments =
+            player.fragments;
+
+        level =
+            player.level;
+
+        population =
+            player.population;
+
+        spawnCities(level);
+
+        updateUI();
+    }
+
+},600);
+
+/* UI */
 
 function updateUI(){
 
     stats.innerHTML = `
-    Fragments: ${fragments}<br>
-    Level: ${level}<br>
-    Population: ${(population/1000).toFixed(1)}K
+
+    Fragments:
+    ${fragments}
+
+    <br>
+
+    Level:
+    ${level}
+
+    <br>
+
+    Population:
+    ${(population/1000).toFixed(1)}K
+
     `;
+
 }
 
-document.getElementById("tapBtn").onclick = (e)=>{
+/* TAP */
+
+document.getElementById(
+    "tapBtn"
+).onclick = (e)=>{
 
     fragments += 1;
+
+    player.fragments =
+        fragments;
 
     floatText(
         "+1",
@@ -23,16 +71,21 @@ document.getElementById("tapBtn").onclick = (e)=>{
         e.clientY
     );
 
-    APP.camera.position.z = 7.9;
+    APP.camera.position.z = 7.8;
 
     setTimeout(()=>{
         APP.camera.position.z = 8;
     },80);
 
     updateUI();
+
 };
 
-document.getElementById("buildBtn").onclick = ()=>{
+/* BUILD */
+
+document.getElementById(
+    "buildBtn"
+).onclick = ()=>{
 
     if(fragments >= 10){
 
@@ -40,27 +93,50 @@ document.getElementById("buildBtn").onclick = ()=>{
 
         level++;
 
-        population += 25000 * level;
+        population +=
+            25000 * level;
+
+        player.fragments =
+            fragments;
+
+        player.level =
+            level;
+
+        player.population =
+            population;
 
         spawnCities(level);
 
-        APP.camera.position.z = 7.4;
+        savePlayer();
+
+        pushEvent(
+            "build",
+            { level }
+        );
+
+        APP.camera.position.z = 7.2;
 
         setTimeout(()=>{
             APP.camera.position.z = 8;
-        },200);
+        },180);
+
     }
 
     updateUI();
+
 };
 
-document.getElementById("planetBtn").onclick = ()=>{
+/* NEXT PLANET */
+
+document.getElementById(
+    "planetBtn"
+).onclick = ()=>{
 
     APP.camera.position.z = 11;
 
     setTimeout(()=>{
         APP.camera.position.z = 8;
-    },600);
+    },700);
 
 };
 
