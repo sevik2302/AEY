@@ -9,7 +9,7 @@ APP.scene =
 
 APP.camera =
     new THREE.PerspectiveCamera(
-        45,
+        42,
         innerWidth/innerHeight,
         0.1,
         1000
@@ -18,7 +18,7 @@ APP.camera =
 APP.camera.position.set(
     0,
     0,
-    8.8
+    8.4
 );
 
 /* =========================
@@ -39,26 +39,51 @@ APP.renderer.setSize(
 );
 
 APP.renderer.setPixelRatio(
-    devicePixelRatio
+    Math.min(
+        devicePixelRatio,
+        2
+    )
 );
 
 document.body.appendChild(
-    APP.renderer.domElement
-);
+    APP.renderer.domElement);
+
+/* =========================
+   FOG
+========================= */
+
+APP.scene.fog =
+    new THREE.Fog(
+        0x07111f,
+        14,
+        26
+    );
 
 /* =========================
    LIGHTS
 ========================= */
 
+const ambient =
+    new THREE.AmbientLight(
+        0xffffff,
+        0.65
+    );
+
+APP.scene.add(
+    ambient
+);
+
+/* sun */
+
 APP.sun =
     new THREE.DirectionalLight(
-        0xffffff,
-        2.8
+        0xfff2d6,
+        3.8
     );
 
 APP.sun.position.set(
-    5,
-    2,
+    6,
+    3,
     5
 );
 
@@ -66,36 +91,44 @@ APP.scene.add(
     APP.sun
 );
 
-const ambient =
-    new THREE.AmbientLight(
-        0xffffff,
-        0.8
+/* blue rim */
+
+const blueLight =
+    new THREE.DirectionalLight(
+        0x4db8ff,
+        1.4
     );
 
+blueLight.position.set(
+    -5,
+    -2,
+    -4
+);
+
 APP.scene.add(
-    ambient
+    blueLight
 );
 
 /* =========================
-   PARALLAX STARS
+   DEEP SPACE STARS
 ========================= */
 
 APP.starLayers = [];
 
-for(let l=0;l<3;l++){
+for(let l=0;l<4;l++){
 
     const geo =
         new THREE.BufferGeometry();
 
     const stars = [];
 
-    for(let i=0;i<1200;i++){
+    for(let i=0;i<1800;i++){
 
         stars.push(
 
-            (Math.random()-0.5)*140,
-            (Math.random()-0.5)*140,
-            (Math.random()-0.5)*140
+            (Math.random()-0.5)*220,
+            (Math.random()-0.5)*220,
+            (Math.random()-0.5)*220
 
         );
 
@@ -116,7 +149,9 @@ for(let l=0;l<3;l++){
         new THREE.PointsMaterial({
 
             color:0xffffff,
-            size:0.08 + l*0.04
+            size:0.06 + l*0.035,
+            transparent:true,
+            opacity:0.8
 
         });
 
@@ -133,12 +168,12 @@ for(let l=0;l<3;l++){
 }
 
 /* =========================
-   SATELLITES
+   BIG SATELLITES
 ========================= */
 
 APP.satellites = [];
 
-for(let i=0;i<2;i++){
+for(let i=0;i<3;i++){
 
     const sat =
         new THREE.Group();
@@ -147,14 +182,14 @@ for(let i=0;i<2;i++){
         new THREE.Mesh(
 
             new THREE.BoxGeometry(
-                0.06,
-                0.04,
-                0.04
+                0.12,
+                0.08,
+                0.08
             ),
 
             new THREE.MeshToonMaterial({
 
-                color:0xffffff
+                color:0f2f2f2
 
             })
 
@@ -162,30 +197,43 @@ for(let i=0;i<2;i++){
 
     sat.add(body);
 
-    const panel =
+    /* panels */
+
+    const panel1 =
         new THREE.Mesh(
 
             new THREE.BoxGeometry(
-                0.12,
-                0.01,
-                0.05
+                0.22,
+                0.012,
+                0.08
             ),
 
             new THREE.MeshToonMaterial({
 
-                color:0x4db8ff
+                color:0x49bfff
 
             })
 
         );
 
-    sat.add(panel);
+    panel1.position.x =
+        -0.18;
+
+    sat.add(panel1);
+
+    const panel2 =
+        panel1.clone();
+
+    panel2.position.x =
+        0.18;
+
+    sat.add(panel2);
 
     sat.userData.angle =
         Math.random()*Math.PI*2;
 
     sat.userData.radius =
-        2.8 + i*0.4;
+        3.1 + i*0.4;
 
     APP.scene.add(sat);
 
@@ -199,7 +247,7 @@ for(let i=0;i<2;i++){
 
 APP.planes = [];
 
-for(let i=0;i<3;i++){
+for(let i=0;i<4;i++){
 
     const plane =
         new THREE.Group();
@@ -208,9 +256,9 @@ for(let i=0;i<3;i++){
         new THREE.Mesh(
 
             new THREE.BoxGeometry(
-                0.06,
-                0.02,
-                0.02
+                0.16,
+                0.04,
+                0.04
             ),
 
             new THREE.MeshToonMaterial({
@@ -227,14 +275,14 @@ for(let i=0;i<3;i++){
         new THREE.Mesh(
 
             new THREE.BoxGeometry(
-                0.02,
-                0.002,
-                0.08
+                0.04,
+                0.01,
+                0.20
             ),
 
             new THREE.MeshToonMaterial({
 
-                color:0xff5555
+                color:0xff5d5d
 
             })
 
@@ -242,11 +290,38 @@ for(let i=0;i<3;i++){
 
     plane.add(wing);
 
+    /* tail */
+
+    const tail =
+        new THREE.Mesh(
+
+            new THREE.BoxGeometry(
+                0.02,
+                0.05,
+                0.02
+            ),
+
+            new THREE.MeshToonMaterial({
+
+                color:0xff5d5d
+
+            })
+
+        );
+
+    tail.position.x =
+        -0.07;
+
+    tail.position.y =
+        0.03;
+
+    plane.add(tail);
+
     plane.userData.angle =
         Math.random()*Math.PI*2;
 
     plane.userData.radius =
-        2.3 + Math.random()*0.3;
+        2.4 + Math.random()*0.5;
 
     APP.scene.add(plane);
 
@@ -269,7 +344,7 @@ function animate(){
     if(APP.planetGroup){
 
         APP.planetGroup.rotation.y +=
-            0.0015;
+            0.0014;
 
     }
 
@@ -278,7 +353,13 @@ function animate(){
     if(APP.cloudLayer){
 
         APP.cloudLayer.rotation.y +=
-            0.0019;
+            0.0024;
+
+        APP.cloudLayer.material.opacity =
+            0.10 +
+            Math.sin(
+                performance.now()*0.0004
+            ) * 0.02;
 
     }
 
@@ -287,24 +368,29 @@ function animate(){
     APP.starLayers.forEach((s,i)=>{
 
         s.rotation.y +=
-            0.00005 + i*0.00005;
+            0.00003 +
+            i*0.00004;
 
     });
 
-    /* sun cycle */
+    /* cinematic sun */
+
+    const t =
+        performance.now()*0.00012;
 
     APP.sun.position.x =
-        Math.sin(DAY_TIME)*5;
+        Math.sin(t)*6;
 
     APP.sun.position.z =
-        Math.cos(DAY_TIME)*5;
+        Math.cos(t)*6;
 
     /* satellites */
 
     APP.satellites.forEach((s,i)=>{
 
         s.userData.angle +=
-            0.004 + i*0.001;
+            0.002 +
+            i*0.0007;
 
         s.position.x =
             Math.cos(
@@ -319,7 +405,9 @@ function animate(){
         s.position.y =
             Math.sin(
                 s.userData.angle*2
-            ) * 0.6;
+            ) * 0.5;
+
+        s.lookAt(0,0,0);
 
     });
 
@@ -328,7 +416,8 @@ function animate(){
     APP.planes.forEach((p,i)=>{
 
         p.userData.angle +=
-            0.01 + i*0.002;
+            0.006 +
+            i*0.001;
 
         p.position.x =
             Math.cos(
@@ -342,8 +431,10 @@ function animate(){
 
         p.position.y =
             Math.sin(
-                p.userData.angle*2
-            ) * 0.2;
+                p.userData.angle*3
+            ) * 0.3;
+
+        p.lookAt(0,0,0);
 
     });
 
