@@ -12,8 +12,8 @@ APP.scene.add(
 const geometry =
     new THREE.SphereGeometry(
         1.65,
-        240,
-        240
+        280,
+        280
     );
 
 const position =
@@ -29,100 +29,88 @@ window.LAND_AREAS = [];
 
 const continents = [
 
-    /* north america */
     {
-        x:-0.58,
-        y:0.30,
-        z:0.42,
-        radius:0.42
-    },
-
-    /* south america */
-    {
-        x:-0.42,
-        y:-0.42,
-        z:0.34,
-        radius:0.26
-    },
-
-    /* europe */
-    {
-        x:0.14,
-        y:0.38,
-        z:0.58,
-        radius:0.18
-    },
-
-    /* africa */
-    {
-        x:0.16,
-        y:-0.06,
-        z:0.54,
-        radius:0.30
-    },
-
-    /* asia */
-    {
-        x:0.64,
-        y:0.16,
-        z:0.10,
+        x:-0.60,
+        y:0.32,
+        z:0.40,
         radius:0.52
     },
 
-    /* australia */
+    {
+        x:-0.42,
+        y:-0.44,
+        z:0.34,
+        radius:0.34
+    },
+
+    {
+        x:0.14,
+        y:0.40,
+        z:0.58,
+        radius:0.24
+    },
+
+    {
+        x:0.16,
+        y:-0.04,
+        z:0.54,
+        radius:0.40
+    },
+
+    {
+        x:0.66,
+        y:0.18,
+        z:0.08,
+        radius:0.68
+    },
+
     {
         x:0.62,
         y:-0.48,
         z:-0.12,
-        radius:0.18
+        radius:0.24
     },
 
-    /* greenland */
     {
-        x:-0.18,
-        y:0.66,
-        z:0.36,
-        radius:0.13
+        x:-0.16,
+        y:0.70,
+        z:0.34,
+        radius:0.16
     },
 
-    /* japan islands */
     {
-        x:0.82,
+        x:0.86,
         y:0.18,
         z:0.02,
-        radius:0.08
+        radius:0.12
     },
 
-    /* uk */
     {
-        x:0.02,
-        y:0.42,
-        z:0.62,
-        radius:0.07
+        x:0.00,
+        y:0.44,
+        z:0.64,
+        radius:0.10
     },
 
-    /* indonesia */
     {
         x:0.56,
-        y:-0.14,
-        z:0.18,
-        radius:0.14
+        y:-0.16,
+        z:0.20,
+        radius:0.22
     },
 
-    /* madagascar */
     {
         x:0.30,
-        y:-0.34,
-        z:0.42,
-        radius:0.08
-    },
-
-    /* scandinavia */
-    {
-        x:0.10,
-        y:0.58,
+        y:-0.36,
         z:0.42,
         radius:0.10
+    },
+
+    {
+        x:0.12,
+        y:0.60,
+        z:0.40,
+        radius:0.14
     }
 
 ];
@@ -146,7 +134,7 @@ function smoothstep(a,b,x){
 }
 
 /* =========================
-   SHAPE
+   PLANET SHAPE
 ========================= */
 
 for(let i=0;i<position.count;i++){
@@ -198,11 +186,13 @@ for(let i=0;i<position.count;i++){
 
     }
 
+    /* LAND */
+
     if(land > 0.02){
 
         const raise =
             1 +
-            land*0.028;
+            land*0.04;
 
         x *= raise;
         y *= raise;
@@ -215,22 +205,34 @@ for(let i=0;i<position.count;i++){
             z
         );
 
+        /*
+        vibrant green
+        */
+
         colors.push(
-            0.72,
+            0.70,
             1.0,
-            0.18
+            0.20
         );
 
         LAND_AREAS.push(
             normal.clone()
         );
 
-    }else{
+    }
+
+    /* OCEAN */
+
+    else{
+
+        /*
+        darker ocean
+        */
 
         colors.push(
             0.0,
-            0.30,
-            0.95
+            0.24,
+            1.0
         );
 
     }
@@ -244,7 +246,6 @@ geometry.setAttribute(
     new THREE.Float32BufferAttribute(
         colors,
         3
-
     )
 
 );
@@ -252,7 +253,7 @@ geometry.setAttribute(
 geometry.computeVertexNormals();
 
 /* =========================
-   MATERIAL
+   MAIN MATERIAL
 ========================= */
 
 const material =
@@ -273,23 +274,77 @@ APP.planetGroup.add(
 );
 
 /* =========================
-   RIM LIGHT
+   OCEAN GLOW
 ========================= */
 
-const rim =
+const glow =
     new THREE.Mesh(
 
         new THREE.SphereGeometry(
-            1.73,
+            1.69,
             64,
             64
         ),
 
         new THREE.MeshBasicMaterial({
 
+            color:0x4db8ff,
+            transparent:true,
+            opacity:0.06
+
+        })
+
+    );
+
+APP.planetGroup.add(
+    glow
+);
+
+/* =========================
+   BIG CLOUD LAYER
+========================= */
+
+APP.cloudLayer =
+    new THREE.Mesh(
+
+        new THREE.SphereGeometry(
+            1.74,
+            128,
+            128
+        ),
+
+        new THREE.MeshToonMaterial({
+
             color:0xffffff,
             transparent:true,
-            opacity:0.06,
+            opacity:0.16
+
+        })
+
+    );
+
+APP.planetGroup.add(
+    APP.cloudLayer
+);
+
+/* =========================
+   STRONG RIM LIGHT
+========================= */
+
+const rim =
+    new THREE.Mesh(
+
+        new THREE.SphereGeometry(
+            1.82,
+            128,
+            128
+        ),
+
+        new THREE.MeshBasicMaterial({
+
+            color:0xffffff,
+            transparent:true,
+            opacity:0.12,
             side:THREE.BackSide
 
         })
@@ -301,28 +356,31 @@ APP.planetGroup.add(
 );
 
 /* =========================
-   CLOUDS
+   NIGHT SIDE
 ========================= */
 
-APP.cloudLayer =
+const night =
     new THREE.Mesh(
 
         new THREE.SphereGeometry(
-            1.71,
-            64,
-            64
+            1.66,
+            128,
+            128
         ),
 
-        new THREE.MeshToonMaterial({
+        new THREE.MeshBasicMaterial({
 
-            color:0xffffff,
+            color:0x001122,
             transparent:true,
-            opacity:0.08
+            opacity:0.10
 
         })
 
     );
 
+night.position.x =
+    -0.08;
+
 APP.planetGroup.add(
-    APP.cloudLayer
+    night
 );
